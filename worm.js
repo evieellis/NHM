@@ -4,21 +4,21 @@ const { useEffect, useRef, useState } = React;
 const steps = [
   {
     id: 1,
-    bubble: "What do you think is happening between these fungi and tree roots?",
-    title: "What is their relationship?",
-    cta: "Tap to guess",
+    bubble: "A mature oak stands on a hidden fungal network. Start the journey to uncover what the eye cannot see.",
+    title: "Detect The Hidden Web",
+    cta: "Start Journey",
   },
   {
     id: 2,
-    bubble: "Most of the action happens underground. Fungi connect directly to tree roots.",
-    title: "Underground connection",
-    cta: "Next",
+    bubble: "Fungal threads touch root tips and spread outward, creating living pathways through the soil.",
+    title: "Trace Root-Fungi Paths",
+    cta: "Reveal Exchange",
   },
   {
     id: 3,
-    bubble: "They exchange nutrients - fungi get sugars, and trees get water and minerals.",
-    title: "Mycorrhizal Symbiosis",
-    cta: "Finish",
+    bubble: "Now watch the exchange: the tree sends sugars, while fungi return water and minerals to the roots.",
+    title: "Watch Resource Exchange",
+    cta: "Restart Journey",
   },
 ];
 
@@ -29,7 +29,7 @@ function ProgressDots({ active }) {
         <div
           key={s.id}
           className={`h-2.5 w-2.5 rounded-full transition-all duration-300 ${
-            s.id <= active ? "bg-slate-800" : "bg-slate-300"
+            s.id <= active ? "bg-[#3f5b3b]" : "bg-[#b7b09d]"
           }`}
         />
       ))}
@@ -254,6 +254,8 @@ function RootNetwork({ step, parallax }) {
       toneMapped: false,
     });
     const mycoMats = [];
+    const rootSegments = [];
+    const tipCandidates = [];
     const rootGroup = new THREE.Group();
     rootGroup.position.set(0, 0, 0);
     scene.add(rootGroup);
@@ -284,6 +286,16 @@ function RootNetwork({ step, parallax }) {
       );
       root.renderOrder = 1;
       rootGroup.add(root);
+      rootSegments.push({
+        curve,
+        start: start.clone(),
+        end: end.clone(),
+        radius,
+        depth,
+      });
+      if (depth <= 1) {
+        tipCandidates.push(end.clone());
+      }
 
       const xrayRoot = new THREE.Mesh(
         new THREE.TubeGeometry(curve, 20, Math.max(0.018, radius * 0.58), 8, false),
@@ -332,6 +344,278 @@ function RootNetwork({ step, parallax }) {
     console.log("✅ Roots created");
     mycoMaterialsRef.current = mycoMats;
 
+    const overlayGroup = new THREE.Group();
+    overlayGroup.renderOrder = 7;
+    rootGroup.add(overlayGroup);
+
+    const candidateAnchors = [];
+    rootSegments.forEach((seg, idx) => {
+      if (idx % 2 !== 0) return;
+      [0.24, 0.48, 0.72, 0.9].forEach((tVal) => {
+        const p = seg.curve.getPoint(tVal);
+        if (p.y < -0.05) candidateAnchors.push(p);
+      });
+    });
+    if (!candidateAnchors.length) {
+      candidateAnchors.push(...(tipCandidates.length ? tipCandidates : rootSegments.map((s) => s.end)));
+    }
+
+    const sectorCount = 14;
+    const sectors = Array.from({ length: sectorCount }, () => []);
+    candidateAnchors.forEach((p) => {
+      const angle = Math.atan2(p.z, p.x) + Math.PI;
+      const sectorIndex = Math.min(sectorCount - 1, Math.floor((angle / (Math.PI * 2)) * sectorCount));
+      sectors[sectorIndex].push(p);
+    });
+
+    const chosenTips = [];
+    sectors.forEach((bucket) => {
+      if (!bucket.length) return;
+      bucket.sort((a, b) => {
+        const ar = a.x * a.x + a.z * a.z;
+        const br = b.x * b.x + b.z * b.z;
+        return br - ar;
+      });
+      chosenTips.push(bucket[0].clone());
+      if (bucket[2]) chosenTips.push(bucket[2].clone());
+    });
+
+    const tipDotMats = [];
+    const tipHaloMats = [];
+    const tipDots = [];
+    const tipHalos = [];
+      const fallbackTips = rootSegments
+        .map((s) => s.end)
+        .filter((p, idx) => idx % Math.max(1, Math.floor(rootSegments.length / 16)) === 0);
+      const displayTips = chosenTips.length >= 6 ? chosenTips : fallbackTips;
+
+      displayTips.forEach((pos, i) => {
+      const m = new THREE.Mesh(
+          new THREE.SphereGeometry(0.06, 12, 12),
+        new THREE.MeshBasicMaterial({
+          color: 0x92f4ff,
+          transparent: true,
+          opacity: 0,
+            depthTest: false,
+          depthWrite: false,
+          toneMapped: false,
+        })
+      );
+      const halo = new THREE.Mesh(
+        new THREE.SphereGeometry(0.11, 14, 14),
+        new THREE.MeshBasicMaterial({
+          color: 0x21a5df,
+          transparent: true,
+          opacity: 0,
+          blending: THREE.AdditiveBlending,
+          depthTest: false,
+          depthWrite: false,
+          toneMapped: false,
+        })
+      );
+      m.position.copy(pos);
+      m.position.y += 0.02 + (i % 2) * 0.015;
+      halo.position.copy(m.position);
+      m.renderOrder = 8;
+      halo.renderOrder = 8;
+      overlayGroup.add(m);
+      overlayGroup.add(halo);
+      tipDotMats.push(m.material);
+      tipHaloMats.push(halo.material);
+      tipDots.push(m);
+      tipHalos.push(halo);
+    });
+
+    const connectionMats = [];
+    const connectionInnerMats = [];
+    const connectionCurves = [];
+    const connectionHeadMats = [];
+    const connectionHeads = [];
+    const makeConnection = (a, b, lift, color, radius, opacity) => {
+      if (!a || !b) return;
+      const mid = a.clone().lerp(b, 0.5);
+      mid.y += lift;
+      const c = new THREE.CatmullRomCurve3([a.clone(), mid, b.clone()]);
+      const mesh = new THREE.Mesh(
+          new THREE.TubeGeometry(c, 28, radius, 8, false),
+        new THREE.MeshBasicMaterial({
+          color,
+          transparent: true,
+          opacity: 0,
+          blending: THREE.AdditiveBlending,
+            depthTest: false,
+          depthWrite: false,
+          toneMapped: false,
+        })
+      );
+      mesh.renderOrder = 8;
+      overlayGroup.add(mesh);
+      mesh.material.userData.baseOpacity = opacity;
+      connectionMats.push(mesh.material);
+
+      const inner = new THREE.Mesh(
+        new THREE.TubeGeometry(c, 28, Math.max(0.009, radius * 0.48), 8, false),
+        new THREE.MeshBasicMaterial({
+          color: 0x83d5ff,
+          transparent: true,
+          opacity: 0,
+          blending: THREE.AdditiveBlending,
+          depthTest: false,
+          depthWrite: false,
+          toneMapped: false,
+        })
+      );
+      inner.renderOrder = 9;
+      overlayGroup.add(inner);
+      inner.material.userData.baseOpacity = Math.min(1, opacity + 0.08);
+      connectionInnerMats.push(inner.material);
+
+      const head = new THREE.Mesh(
+        new THREE.SphereGeometry(Math.max(0.03, radius * 1.5), 12, 12),
+        new THREE.MeshBasicMaterial({
+          color: 0xb8ecff,
+          transparent: true,
+          opacity: 0,
+          blending: THREE.AdditiveBlending,
+          depthTest: false,
+          depthWrite: false,
+          toneMapped: false,
+        })
+      );
+      head.renderOrder = 10;
+      head.position.copy(a);
+      overlayGroup.add(head);
+      connectionHeads.push(head);
+      connectionHeadMats.push(head.material);
+
+      connectionCurves.push(c);
+    };
+
+    const lineTips = displayTips.length >= 6
+      ? displayTips
+      : [
+          displayTips[0],
+          displayTips[Math.floor(displayTips.length * 0.25)],
+          displayTips[Math.floor(displayTips.length * 0.5)],
+          displayTips[Math.floor(displayTips.length * 0.75)],
+          displayTips[displayTips.length - 1],
+        ].filter(Boolean);
+
+    const blueShades = [0x0f2f76, 0x123c8a, 0x164ba1, 0x1a56b6, 0x1f63c8, 0x11509b];
+    const orderedTips = lineTips.filter(Boolean);
+    if (orderedTips.length >= 3) {
+      const usedPairs = new Set();
+      const addPair = (i, j, lift, shadeIdx, radius, opacity) => {
+        if (i === j || i < 0 || j < 0 || i >= orderedTips.length || j >= orderedTips.length) return;
+        const a = Math.min(i, j);
+        const b = Math.max(i, j);
+        const key = `${a}-${b}`;
+        if (usedPairs.has(key)) return;
+        usedPairs.add(key);
+        makeConnection(orderedTips[a], orderedTips[b], lift, blueShades[shadeIdx % blueShades.length], radius, opacity);
+      };
+
+      for (let i = 0; i < orderedTips.length; i++) {
+        addPair(i, (i + 1) % orderedTips.length, 0.08 + (i % 3) * 0.03, i, 0.024, 0.92);
+        addPair(i, (i + 2) % orderedTips.length, 0.12 + (i % 2) * 0.04, i + 2, 0.021, 0.86);
+        addPair(i, (i + 3) % orderedTips.length, 0.16 + (i % 2) * 0.03, i + 4, 0.018, 0.8);
+      }
+
+      const centerTip = orderedTips[Math.floor(orderedTips.length / 2)];
+      orderedTips.forEach((tip, i) => {
+        if (tip === centerTip) return;
+        makeConnection(tip, centerTip, 0.2 + (i % 2) * 0.04, blueShades[(i + 1) % blueShades.length], 0.017, 0.78);
+      });
+    }
+
+    const nutrientMats = [];
+    const nutrientDots = [];
+    const nutrientRingMats = [];
+    const nutrientRings = [];
+    const nutrientSeeds = [];
+    const spreadSegments = rootSegments
+      .map((seg) => {
+        const probe = seg.curve.getPoint(0.72);
+        return { seg, probe, angle: Math.atan2(probe.z, probe.x) };
+      })
+      .filter((item) => item.probe.y < -0.08)
+      .sort((a, b) => a.angle - b.angle);
+
+    const nutrientCount = 10;
+    for (let i = 0; i < nutrientCount; i++) {
+      const spreadIdx = spreadSegments.length
+        ? Math.floor((i / nutrientCount) * spreadSegments.length)
+        : (i * 7 + 3) % rootSegments.length;
+      const seg = spreadSegments.length ? spreadSegments[spreadIdx].seg : rootSegments[spreadIdx];
+      const tVal = 0.28 + (i % 5) * 0.12;
+      const base = seg.curve.getPoint(Math.min(0.94, tVal));
+      nutrientSeeds.push({ seg, tVal, wobble: Math.random() * Math.PI * 2 });
+      const dot = new THREE.Mesh(
+        new THREE.SphereGeometry(0.07, 12, 12),
+        new THREE.MeshBasicMaterial({
+          color: 0xffd15a,
+          transparent: true,
+          opacity: 0,
+            depthTest: false,
+          depthWrite: false,
+          toneMapped: false,
+        })
+      );
+      dot.position.copy(base);
+      dot.renderOrder = 12;
+      overlayGroup.add(dot);
+
+      const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(0.115, 0.012, 8, 32),
+        new THREE.MeshBasicMaterial({
+          color: 0xe8ff72,
+          transparent: true,
+          opacity: 0,
+          blending: THREE.AdditiveBlending,
+          depthTest: false,
+          depthWrite: false,
+          toneMapped: false,
+        })
+      );
+      ring.position.copy(base);
+      ring.rotation.x = Math.PI / 2;
+      ring.renderOrder = 13;
+      overlayGroup.add(ring);
+
+      nutrientDots.push(dot);
+      nutrientMats.push(dot.material);
+      nutrientRings.push(ring);
+      nutrientRingMats.push(ring.material);
+    }
+
+    const flowParticleMats = [];
+    const flowParticles = [];
+    const spreadRootTracks = spreadSegments.slice(0, 10).map((item) => item.seg.curve);
+    const flowTracks = connectionCurves.length
+      ? connectionCurves.concat(spreadRootTracks)
+      : spreadRootTracks.length
+      ? spreadRootTracks
+      : rootSegments.slice(0, 6).map((s) => s.curve);
+    for (let i = 0; i < 7; i++) {
+      const p = new THREE.Mesh(
+          new THREE.OctahedronGeometry(0.082, 0),
+        new THREE.MeshBasicMaterial({
+          color: 0xff6a2b,
+          transparent: true,
+          opacity: 0,
+            depthTest: false,
+          depthWrite: false,
+          toneMapped: false,
+        })
+      );
+      p.renderOrder = 8;
+      overlayGroup.add(p);
+      p.userData.offset = i / 7;
+      p.userData.spin = 0.6 + Math.random() * 0.8;
+      flowParticles.push(p);
+      flowParticleMats.push(p.material);
+    }
+
     const resize = () => {
       const w = container.clientWidth;
       const h = container.clientHeight;
@@ -352,6 +636,7 @@ function RootNetwork({ step, parallax }) {
     });
 
     const clock = new THREE.Clock();
+    let connectionRevealStart = null;
     let raf = 0;
     const animate = () => {
       const t = clock.getElapsedTime();
@@ -373,7 +658,90 @@ function RootNetwork({ step, parallax }) {
         mat.emissiveIntensity = targetGlow ? 0.52 + pulse * 0.55 : 0;
       });
       const xrayPulse = 0.6 + 0.4 * Math.sin(t * 1.8 + 0.6);
-      xrayRootMat.opacity = 0.32 + xrayPulse * 0.2;
+      const xrayBase = stepRef.current === 1 ? 0.16 : stepRef.current === 2 ? 0.2 : 0.42;
+      xrayRootMat.opacity = xrayBase + xrayPulse * 0.12;
+
+      const showConnections = stepRef.current >= 2;
+      const showExchange = stepRef.current >= 3;
+      if (showConnections && connectionRevealStart === null) {
+        connectionRevealStart = t;
+      }
+      if (!showConnections) {
+        connectionRevealStart = null;
+      }
+      const revealProgress = showConnections
+        ? Math.min(1, ((t - (connectionRevealStart || t)) * 1.35))
+        : 0;
+
+      tipDotMats.forEach((mat, i) => {
+        const tipPulse = 0.62 + 0.38 * Math.sin(t * 2.1 + i * 0.9);
+        mat.opacity = showConnections ? 0.65 + tipPulse * 0.35 : 0;
+      });
+      tipHaloMats.forEach((mat, i) => {
+        const haloPulse = 0.58 + 0.42 * Math.sin(t * 1.7 + i * 0.7);
+        mat.opacity = showConnections ? 0.18 + haloPulse * 0.3 : 0;
+      });
+      tipDots.forEach((dot, i) => {
+        const s = 1 + Math.sin(t * 2.3 + i * 0.9) * 0.2;
+        dot.scale.setScalar(s);
+      });
+      tipHalos.forEach((halo, i) => {
+        const hs = 1 + Math.sin(t * 1.8 + i * 0.9) * 0.32;
+        halo.scale.setScalar(hs);
+      });
+
+      connectionMats.forEach((mat, i) => {
+        const linePulse = 0.6 + 0.4 * Math.sin(t * 1.6 + i * 1.2);
+        mat.opacity = showConnections ? (mat.userData?.baseOpacity || 0.8) * revealProgress * (0.78 + linePulse * 0.34) : 0;
+      });
+      connectionInnerMats.forEach((mat, i) => {
+        const innerPulse = 0.55 + 0.45 * Math.sin(t * 2.25 + i * 1.15);
+        mat.opacity = showConnections ? (mat.userData?.baseOpacity || 0.88) * revealProgress * (0.68 + innerPulse * 0.44) : 0;
+      });
+      connectionHeads.forEach((head, i) => {
+        const curve = connectionCurves[i];
+        if (!curve) return;
+        const localReach = Math.min(1, Math.max(0, revealProgress * 1.18 - i * 0.012));
+        const travel = Math.min(1, localReach + Math.sin(t * 2.4 + i * 0.8) * 0.03);
+        head.position.copy(curve.getPoint(Math.max(0, travel)));
+        const s = 1 + Math.sin(t * 5.5 + i * 0.7) * 0.25;
+        head.scale.setScalar(s);
+      });
+      connectionHeadMats.forEach((mat, i) => {
+        const shimmer = 0.6 + 0.4 * Math.sin(t * 4 + i * 0.9);
+        mat.opacity = showConnections ? Math.min(0.95, revealProgress * (0.45 + shimmer * 0.5)) : 0;
+      });
+
+      nutrientDots.forEach((dot, i) => {
+        const seed = nutrientSeeds[i];
+        const drift = 0.035 * Math.sin(t * 1.4 + seed.wobble);
+        dot.position.copy(seed.seg.curve.getPoint(Math.min(0.96, seed.tVal + drift)));
+        dot.position.y += Math.sin(t * 1.8 + i * 0.75) * 0.02;
+        dot.scale.setScalar(1 + Math.sin(t * 2.6 + i * 0.9) * 0.22);
+        nutrientRings[i].position.copy(dot.position);
+        nutrientRings[i].rotation.z = t * (0.7 + i * 0.08);
+      });
+      nutrientMats.forEach((mat, i) => {
+        const nutriPulse = 0.64 + 0.36 * Math.sin(t * 2.45 + i * 0.75);
+        mat.opacity = showExchange ? 0.66 + nutriPulse * 0.32 : 0;
+      });
+      nutrientRingMats.forEach((mat, i) => {
+        const ringPulse = 0.56 + 0.44 * Math.sin(t * 2.2 + i * 0.6);
+        mat.opacity = showExchange ? 0.22 + ringPulse * 0.28 : 0;
+      });
+
+      flowParticles.forEach((p, i) => {
+        const track = flowTracks[i % flowTracks.length];
+        const travel = (t * 0.36 + p.userData.offset) % 1;
+        p.position.copy(track.getPoint(travel));
+        p.rotation.x = t * p.userData.spin;
+        p.rotation.y = t * (p.userData.spin * 0.72);
+        p.scale.setScalar(1 + Math.sin(t * 4 + i * 1.2) * 0.24);
+      });
+      flowParticleMats.forEach((mat, i) => {
+        const flowPulse = 0.66 + 0.34 * Math.sin(t * 3.1 + i * 0.8);
+        mat.opacity = showExchange ? 0.62 + flowPulse * 0.34 : 0;
+      });
 
       renderer.render(scene, camera);
       raf = requestAnimationFrame(animate);
@@ -404,14 +772,6 @@ function RootNetwork({ step, parallax }) {
       if (renderer.domElement.parentNode === container) container.removeChild(renderer.domElement);
     };
   }, [threeRetryKey]);
-
-  const nutrientDots = [
-    { top: "62%", left: "17%", delay: "0ms" },
-    { top: "71%", left: "31%", delay: "120ms" },
-    { top: "76%", left: "48%", delay: "240ms" },
-    { top: "69%", left: "63%", delay: "360ms" },
-    { top: "74%", left: "80%", delay: "460ms" },
-  ];
 
   return (
     <div className="relative h-full w-full overflow-hidden rounded-t-[28px] bg-gradient-to-b from-[#d5f0ff] via-[#99d07e] to-[#5f8b42]">
@@ -475,15 +835,6 @@ function RootNetwork({ step, parallax }) {
 
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_8%,rgba(255,255,255,0.36),transparent_34%)]" />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.10),transparent_30%,rgba(40,24,12,0.10)_68%,rgba(20,12,8,0.28))]" />
-
-      {step >= 3 &&
-        nutrientDots.map((d, i) => (
-          <div
-            key={i}
-            className="absolute h-3 w-3 animate-pulse rounded-full bg-amber-200 shadow-[0_0_18px_rgba(253,230,138,0.9)]"
-            style={{ top: d.top, left: d.left, animationDelay: d.delay }}
-          />
-        ))}
 
       <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/25 to-transparent" />
     </div>
@@ -595,9 +946,86 @@ function ExplanationCard() {
   );
 }
 
+function JourneyTrack({ step }) {
+  return (
+    <div className="rounded-3xl border border-[#d8cfba] bg-gradient-to-r from-[#e6efdf] via-[#f2ead0] to-[#e8e0cf] p-4 shadow-[0_8px_24px_rgba(15,23,42,0.08)]">
+      <div className="relative">
+        <div className="absolute left-8 right-8 top-6 h-[3px] rounded-full bg-gradient-to-r from-[#7fa06e] via-[#d8bf73] to-[#8a7a56]" />
+        <div className="grid grid-cols-3 gap-3">
+          {steps.map((item) => {
+            const active = item.id === step;
+            const complete = item.id < step;
+            return (
+              <div key={item.id} className="relative flex flex-col items-center gap-2 text-center">
+                <div
+                  className={`relative z-10 flex h-12 w-12 items-center justify-center rounded-full border-2 text-sm font-bold transition-all ${
+                    active
+                      ? "border-[#3f5b3b] bg-[#3f5b3b] text-white shadow-[0_0_0_6px_rgba(63,91,59,0.2)]"
+                      : complete
+                      ? "border-[#6f8f60] bg-[#dce8d6] text-[#355238]"
+                      : "border-[#b8ae95] bg-[#f7f2e8] text-[#7a725e]"
+                  }`}
+                >
+                  {complete ? "✓" : item.id}
+                </div>
+                <div className={`text-xs font-semibold ${active ? "text-[#2f4733]" : "text-[#6b624f]"}`}>{item.title}</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function JourneyCard({ step }) {
+  if (step === 1) {
+    return (
+      <div className="rounded-3xl border border-[#d8cfba] bg-[#f9f5ea] p-6 shadow-[0_16px_40px_rgba(15,23,42,0.08)]">
+        <div className="mb-4 text-sm font-semibold uppercase tracking-[0.12em] text-[#6d6248]">Journey Start</div>
+        <h3 className="text-3xl font-semibold text-[#2a3b2c]">Begin Beneath The Oak</h3>
+        <p className="mt-2 text-[#534d3d]">Follow the underground story in three moments: detect, trace, and exchange.</p>
+        <div className="mt-5 rounded-2xl border border-[#d8cfba] bg-white/75 p-4 text-sm text-[#4a4435]">
+          Click <span className="font-semibold">Start Journey</span> to reveal each layer of the ecosystem.
+        </div>
+      </div>
+    );
+  }
+
+  if (step === 2) {
+    return (
+      <div className="rounded-3xl border border-[#d8cfba] bg-[#f9f5ea] p-6 shadow-[0_16px_40px_rgba(15,23,42,0.08)]">
+        <div className="mb-4 text-sm font-semibold uppercase tracking-[0.12em] text-[#3f5b3b]">Journey Step 2</div>
+        <h3 className="text-3xl font-semibold text-[#2a3b2c]">Hidden Underground Network</h3>
+        <p className="mt-2 text-lg text-[#534d3d]">Fungal threads attach to root tips and spread through soil like a transport web.</p>
+        <div className="mt-5 rounded-2xl bg-gradient-to-r from-[#d8ead0] via-[#ece3b7] to-[#e7d2a6] p-4 text-sm text-[#4a4435]">
+          The glowing network shows possible nutrient pathways between fungi and roots.
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-3xl border border-[#d8cfba] bg-[#f9f5ea] p-6 shadow-[0_16px_40px_rgba(15,23,42,0.08)]">
+      <div className="mb-4 text-sm font-semibold uppercase tracking-[0.12em] text-[#73542c]">Journey Step 3</div>
+      <h3 className="text-3xl font-semibold text-[#2a3b2c]">Resource Exchange Complete</h3>
+      <p className="mt-2 text-lg text-[#534d3d]">This is mycorrhizal symbiosis: sugars go to fungi, water and minerals return to the tree.</p>
+      <div className="mt-5 grid gap-3 md:grid-cols-2">
+        <div className="rounded-2xl bg-[#dfe9dd] p-4">
+          <div className="text-xs font-semibold uppercase tracking-wider text-[#37553b]">Tree Gives</div>
+          <div className="mt-1 text-lg font-semibold text-[#2f4733]">Sugars</div>
+        </div>
+        <div className="rounded-2xl bg-[#e6dfcf] p-4">
+          <div className="text-xs font-semibold uppercase tracking-wider text-[#5d4b2d]">Fungi Gives</div>
+          <div className="mt-1 text-lg font-semibold text-[#4f3d24]">Water + minerals</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ARLessonPrototype() {
   const [step, setStep] = useState(1);
-  const [guessed, setGuessed] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [parallax, setParallax] = useState({ x: 0, y: 0 });
 
@@ -608,26 +1036,17 @@ function ARLessonPrototype() {
   }, [feedback]);
 
   const next = () => {
-    if (step === 1 && !guessed) {
-      setGuessed(true);
-      setFeedback("Nice guess");
-      return;
-    }
     if (step < 3) {
       setStep((s) => s + 1);
-      setFeedback(step === 1 ? "Hidden connections revealed" : "Nutrients are moving!");
+      setFeedback(step === 1 ? "Underground pathways revealed" : "Exchange in progress");
       return;
     }
     setStep(1);
-    setGuessed(false);
-    setFeedback("Restarting lesson");
+    setFeedback("Journey restarted");
   };
 
   const back = () => {
-    if (step === 1) {
-      setGuessed(false);
-      return;
-    }
+    if (step === 1) return;
     setStep((s) => s - 1);
   };
 
@@ -653,9 +1072,9 @@ function ARLessonPrototype() {
   const resetParallax = () => setParallax({ x: 0, y: 0 });
 
   return (
-    <div className="min-h-screen bg-slate-100 p-3 text-slate-900 md:p-8">
-      <div className="mx-auto w-full max-w-[1536px] overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-2xl">
-        <div className="grid min-h-[840px] grid-rows-[45%_55%] md:h-[1024px] md:grid-rows-2">
+    <div className="min-h-[100dvh] bg-[#dfd9c9] p-3 text-slate-900 md:p-8">
+      <div className="mx-auto h-[calc(100dvh-1.5rem)] w-full max-w-[1536px] overflow-hidden rounded-[32px] border border-[#c9bfa8] bg-[#f7f2e6] shadow-2xl md:h-[calc(100dvh-4rem)]">
+        <div className="grid h-full grid-rows-[minmax(280px,45vh)_1fr] md:grid-rows-[minmax(360px,48vh)_1fr]">
           <div
             className="relative"
             onMouseMove={handleSceneMove}
@@ -666,45 +1085,38 @@ function ARLessonPrototype() {
             <RootNetwork step={step} parallax={parallax} />
           </div>
 
-          <div className="relative bg-[#F7F9F7] px-4 pb-6 pt-5 md:px-8">
+          <div className="relative overflow-y-auto bg-[#ece5d5] px-4 pb-6 pt-5 md:px-8">
             {feedback && (
-              <div className="absolute left-1/2 top-3 z-20 -translate-x-1/2 rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white shadow-lg">
+              <div className="absolute left-1/2 top-3 z-20 -translate-x-1/2 rounded-full bg-[#2f4733] px-4 py-2 text-sm font-medium text-white shadow-lg">
                 {feedback}
               </div>
             )}
 
-            <div className="mb-4 flex items-end justify-between gap-4">
-              <div className="max-w-[980px] rounded-[24px] bg-white px-4 py-4 text-lg font-medium leading-snug text-slate-800 shadow-[0_12px_30px_rgba(15,23,42,0.08)] md:px-6 md:py-5 md:text-[22px]">
+            <div className="mb-4 grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
+              <div className="rounded-[24px] border border-[#d5cab3] bg-[#f7f2e8] px-5 py-4 text-lg font-medium leading-snug text-[#2f3527] shadow-[0_12px_30px_rgba(15,23,42,0.08)] md:px-6 md:py-5 md:text-[22px]">
                 {current.bubble}
               </div>
-              <Worm />
+              <div className="justify-self-end">
+                <Worm />
+              </div>
             </div>
 
             <div className="mx-auto max-w-[1200px]">
-              {step === 1 ? (
-                <QuestionCard
-                  guessed={guessed}
-                  onGuess={() => {
-                    setGuessed(true);
-                    setFeedback("Nice guess");
-                  }}
-                />
-              ) : step === 2 ? (
-                <ConnectionCard />
-              ) : (
-                <ExplanationCard />
-              )}
+              <div className="space-y-4">
+                <JourneyTrack step={step} />
+                <JourneyCard step={step} />
+              </div>
             </div>
 
-            <div className="mt-5 flex items-center justify-between px-2">
-              <button onClick={back} className="rounded-xl px-3 py-2 text-slate-700 transition hover:bg-slate-200/70">
+            <div className="mt-5 flex items-center justify-between rounded-2xl border border-[#d5cab3] bg-[#f7f2e8]/85 px-3 py-3 backdrop-blur">
+              <button onClick={back} className="rounded-xl px-3 py-2 text-[#504730] transition hover:bg-[#e2d8c2]">
                 &lt; Back
               </button>
 
               <ProgressDots active={step} />
 
-              <button onClick={next} className="rounded-xl bg-emerald-800 px-4 py-2.5 text-white transition hover:scale-[1.01] active:scale-[0.99]">
-                {step === 1 && !guessed ? current.cta : step === 3 ? "Restart" : "Next"} &gt;
+              <button onClick={next} className="rounded-xl bg-[#3f5b3b] px-4 py-2.5 text-white transition hover:scale-[1.01] hover:bg-[#32492f] active:scale-[0.99]">
+                {step === 3 ? "Restart" : current.cta} &gt;
               </button>
             </div>
           </div>
