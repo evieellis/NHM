@@ -562,7 +562,7 @@ function RootNetwork({ step, parallax }) {
         })
       );
       dot.position.copy(base);
-      dot.renderOrder = 12;
+      dot.renderOrder = 20;
       overlayGroup.add(dot);
 
       const ring = new THREE.Mesh(
@@ -579,7 +579,7 @@ function RootNetwork({ step, parallax }) {
       );
       ring.position.copy(base);
       ring.rotation.x = Math.PI / 2;
-      ring.renderOrder = 13;
+      ring.renderOrder = 21;
       overlayGroup.add(ring);
 
       nutrientDots.push(dot);
@@ -596,7 +596,20 @@ function RootNetwork({ step, parallax }) {
       : spreadRootTracks.length
       ? spreadRootTracks
       : rootSegments.slice(0, 6).map((s) => s.curve);
-    for (let i = 0; i < 7; i++) {
+
+    const flowTrackMeta = flowTracks
+      .map((curve) => {
+        const mid = curve.getPoint(0.5);
+        return {
+          curve,
+          angle: Math.atan2(mid.z, mid.x),
+          radius: mid.x * mid.x + mid.z * mid.z,
+        };
+      })
+      .sort((a, b) => a.angle - b.angle || b.radius - a.radius);
+
+    const flowParticleCount = Math.min(16, Math.max(10, flowTrackMeta.length));
+    for (let i = 0; i < flowParticleCount; i++) {
       const p = new THREE.Mesh(
           new THREE.OctahedronGeometry(0.082, 0),
         new THREE.MeshBasicMaterial({
@@ -608,9 +621,12 @@ function RootNetwork({ step, parallax }) {
           toneMapped: false,
         })
       );
-      p.renderOrder = 8;
+      p.renderOrder = 22;
       overlayGroup.add(p);
-      p.userData.offset = i / 7;
+      const trackIndex = flowTrackMeta.length ? Math.floor((i / flowParticleCount) * flowTrackMeta.length) : 0;
+      p.userData.trackIndex = Math.min(Math.max(trackIndex, 0), Math.max(flowTrackMeta.length - 1, 0));
+      p.userData.offset = (i / flowParticleCount + (i % 3) * 0.07) % 1;
+      p.userData.speed = 0.24 + (i % 5) * 0.035;
       p.userData.spin = 0.6 + Math.random() * 0.8;
       flowParticles.push(p);
       flowParticleMats.push(p.material);
@@ -716,7 +732,7 @@ function RootNetwork({ step, parallax }) {
         const seed = nutrientSeeds[i];
         const drift = 0.035 * Math.sin(t * 1.4 + seed.wobble);
         dot.position.copy(seed.seg.curve.getPoint(Math.min(0.96, seed.tVal + drift)));
-        dot.position.y += Math.sin(t * 1.8 + i * 0.75) * 0.02;
+        dot.position.y += 0.06 + Math.sin(t * 1.8 + i * 0.75) * 0.02;
         dot.scale.setScalar(1 + Math.sin(t * 2.6 + i * 0.9) * 0.22);
         nutrientRings[i].position.copy(dot.position);
         nutrientRings[i].rotation.z = t * (0.7 + i * 0.08);
@@ -731,9 +747,12 @@ function RootNetwork({ step, parallax }) {
       });
 
       flowParticles.forEach((p, i) => {
-        const track = flowTracks[i % flowTracks.length];
-        const travel = (t * 0.36 + p.userData.offset) % 1;
+        const trackMeta = flowTrackMeta[p.userData.trackIndex] || flowTrackMeta[i % flowTrackMeta.length];
+        if (!trackMeta) return;
+        const travel = (t * p.userData.speed + p.userData.offset) % 1;
+        const track = trackMeta.curve;
         p.position.copy(track.getPoint(travel));
+        p.position.y += 0.07;
         p.rotation.x = t * p.userData.spin;
         p.rotation.y = t * (p.userData.spin * 0.72);
         p.scale.setScalar(1 + Math.sin(t * 4 + i * 1.2) * 0.24);
@@ -1024,6 +1043,73 @@ function JourneyCard({ step }) {
   );
 }
 
+function OverlayLegend({ step }) {
+  const items = [
+    {
+      id: "roots",
+      minStep: 1,
+      label: "Root X-ray Layer",
+      swatch: (
+        <span className="h-2.5 w-8 rounded-full bg-[#ffdf4d]/85 shadow-[0_0_10px_rgba(255,223,77,0.85)]" />
+      ),
+    },
+    {
+      id: "tips",
+      minStep: 2,
+      label: "Root-tip Signals",
+      swatch: (
+        <span className="relative flex h-4 w-4 items-center justify-center">
+          <span className="absolute h-4 w-4 rounded-full bg-[#21a5df]/35" />
+          <span className="relative h-2.5 w-2.5 rounded-full bg-[#92f4ff] shadow-[0_0_10px_rgba(146,244,255,0.95)]" />
+        </span>
+      ),
+    },
+    {
+      id: "connections",
+      minStep: 2,
+      label: "Fungal Connections",
+      swatch: (
+        <span className="relative h-2.5 w-9 rounded-full bg-[#123c8a]">
+          <span className="absolute left-0 top-1/2 h-[2px] w-full -translate-y-1/2 rounded-full bg-[#83d5ff]" />
+        </span>
+      ),
+    },
+    {
+      id: "nutrients",
+      minStep: 3,
+      label: "Nutrients",
+      swatch: (
+        <span className="relative flex h-4 w-4 items-center justify-center">
+          <span className="absolute h-4 w-4 rounded-full border border-[#e8ff72]/80" />
+          <span className="relative h-2.5 w-2.5 rounded-full bg-[#ffd15a] shadow-[0_0_10px_rgba(255,209,90,0.95)]" />
+        </span>
+      ),
+    },
+    {
+      id: "flow",
+      minStep: 3,
+      label: "Flow Particles",
+      swatch: (
+        <span className="h-3.5 w-3.5 rounded-[3px] bg-[#ff6a2b] shadow-[0_0_10px_rgba(255,106,43,0.95)]" />
+      ),
+    },
+  ].filter((item) => step >= item.minStep);
+
+  return (
+    <div className="rounded-2xl border border-[#d5cab3] bg-[#f7f2e8]/90 px-4 py-3 shadow-[0_8px_22px_rgba(15,23,42,0.07)]">
+      <div className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-[#5f573f]">Overlay Key</div>
+      <div className="flex flex-wrap items-center gap-2.5 md:gap-3">
+        {items.map((item) => (
+          <div key={item.id} className="inline-flex items-center gap-2 rounded-full border border-[#d7ccb3] bg-white/70 px-3 py-1.5 text-xs font-medium text-[#4a4435]">
+            {item.swatch}
+            <span>{item.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ARLessonPrototype() {
   const [step, setStep] = useState(1);
   const [feedback, setFeedback] = useState("");
@@ -1105,6 +1191,7 @@ function ARLessonPrototype() {
               <div className="space-y-4">
                 <JourneyTrack step={step} />
                 <JourneyCard step={step} />
+                <OverlayLegend step={step} />
               </div>
             </div>
 
