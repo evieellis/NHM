@@ -8,47 +8,72 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      background: #162016;
-      font-family: 'Georgia', 'Times New Roman', serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      background: #dfd9c9;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
       min-height: 100vh;
-      padding: 24px 16px 36px;
+      padding: 12px;
+      color: #2f3527;
+    }
+
+    .app-shell {
+      max-width: 1200px;
+      margin: 0 auto;
+      border: 1px solid #c9bfa8;
+      border-radius: 32px;
+      background: #f7f2e6;
+      box-shadow: 0 24px 48px rgba(15, 23, 42, 0.2);
+      padding: 18px;
     }
 
     .header {
       text-align: center;
-      margin-bottom: 18px;
+      margin-bottom: 14px;
     }
     .header h1 {
-      color: #dff0d0;
-      font-size: 1.1rem;
-      font-weight: normal;
-      letter-spacing: 4px;
+      color: #2a3b2c;
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: 2px;
       text-transform: uppercase;
     }
     .header p {
-      color: #5e8e52;
+      color: #6b624f;
       font-size: 0.75rem;
-      letter-spacing: 3px;
+      letter-spacing: 2px;
       margin-top: 5px;
       text-transform: uppercase;
     }
 
     .map-wrapper {
       position: relative;
-      width: min(960px, 100vw - 32px);
+      width: 100%;
     }
 
     #garden-svg {
       width: 100%;
       height: auto;
       display: block;
-      border-radius: 4px;
-      box-shadow: 0 12px 48px rgba(0,0,0,0.6);
+      border-radius: 24px;
+      border: 1px solid #d5cab3;
+      box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12);
       cursor: crosshair;
       user-select: none;
+      background: #f4f1e7;
+    }
+
+    .map-label {
+      fill: #1e241d;
+      font-size: 8.5px;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.15px;
+      opacity: 0.88;
+    }
+
+    .map-label-bg {
+      fill: rgba(242, 239, 230, 0.72);
+      stroke: rgba(122, 116, 94, 0.22);
+      stroke-width: 0.8;
     }
 
     /* ── Info card ── */
@@ -120,9 +145,13 @@
 
     /* ── Bottom bar ── */
     .bottom-bar {
-      margin-top: 16px;
+      margin-top: 14px;
       display: flex; flex-direction: column;
       align-items: center; gap: 9px;
+      border: 1px solid #d5cab3;
+      background: #f7f2e8;
+      border-radius: 20px;
+      padding: 14px 14px 12px;
     }
     .legend {
       display: flex; gap: 22px;
@@ -130,21 +159,51 @@
     }
     .legend-item {
       display: flex; align-items: center; gap: 7px;
-      color: #82ae72; font-size: 0.75rem; letter-spacing: 0.5px;
+      color: #4a4435; font-size: 0.75rem; letter-spacing: 0.3px;
       font-family: 'Arial', sans-serif;
     }
     .hint {
-      color: #426836;
+      color: #6b624f;
       font-size: 0.72rem; letter-spacing: 0.4px;
       text-align: center; font-family: 'Arial', sans-serif;
+    }
+
+    .actions {
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      border: 1px solid #cdbf9f;
+      background: #f7f2e8;
+      color: #4a4435;
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 8px 14px;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+      transition: background 0.16s ease;
+    }
+
+    .nav-btn:hover {
+      background: #eee3ce;
     }
   </style>
 </head>
 <body>
 
+<div class="app-shell">
+
 <div class="header">
   <h1>Natural History Museum</h1>
-  <p>Wildlife Garden &mdash; Visitor Map</p>
+  <p>Wildlife Garden - Visitor Map</p>
 </div>
 
 <div class="map-wrapper" id="mapWrapper">
@@ -171,14 +230,32 @@
         <stop offset="100%" stop-color="#4a90aa"/>
       </radialGradient>
       <radialGradient id="bgGrad" cx="50%" cy="50%" r="80%">
-        <stop offset="0%"   stop-color="#cce49e"/>
-        <stop offset="100%" stop-color="#a8cc78"/>
+        <stop offset="0%"   stop-color="#d9e8bf"/>
+        <stop offset="100%" stop-color="#bdd39a"/>
       </radialGradient>
+      <linearGradient id="paperTint" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#f5f1e6" stop-opacity="0.85"/>
+        <stop offset="100%" stop-color="#ece8da" stop-opacity="0.68"/>
+      </linearGradient>
       <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%">
         <feDropShadow dx="1" dy="2" stdDeviation="2.5" flood-color="#000" flood-opacity="0.32"/>
       </filter>
       <filter id="pinShadow" x="-50%" y="-50%" width="200%" height="200%">
         <feDropShadow dx="1" dy="3" stdDeviation="3" flood-color="#000" flood-opacity="0.4"/>
+      </filter>
+      <filter id="watercolor" x="-10%" y="-10%" width="120%" height="120%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.014" numOctaves="2" seed="9" result="noise"/>
+        <feColorMatrix in="SourceGraphic" type="saturate" values="0.68" result="desat"/>
+        <feDisplacementMap in="desat" in2="noise" scale="2.1" xChannelSelector="R" yChannelSelector="G" result="warped"/>
+        <feGaussianBlur in="warped" stdDeviation="0.22" result="soft"/>
+        <feBlend in="desat" in2="soft" mode="multiply"/>
+      </filter>
+      <filter id="paperNoise" x="-10%" y="-10%" width="120%" height="120%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="13" result="grain"/>
+        <feColorMatrix in="grain" type="saturate" values="0"/>
+        <feComponentTransfer>
+          <feFuncA type="table" tableValues="0 0.05"/>
+        </feComponentTransfer>
       </filter>
       <!-- Subtle root-network pattern for underground hint -->
       <pattern id="rootPattern" x="0" y="0" width="30" height="20" patternUnits="userSpaceOnUse">
@@ -188,281 +265,111 @@
       </pattern>
     </defs>
 
+    <g id="map-base" filter="url(#watercolor)">
     <!-- ═══════ BACKGROUND ═══════ -->
     <rect width="900" height="555" fill="url(#bgGrad)"/>
     <rect x="7" y="7" width="886" height="541" rx="2" fill="none" stroke="#88aa58" stroke-width="1.2" opacity="0.55"/>
+    <rect width="900" height="555" fill="url(#paperTint)" opacity="0.5"/>
 
-    <!-- ═══════ DARWIN CENTRE COURTYARD — upper right ═══════ -->
-    <path d="M 502,8 L 892,8 L 892,188 L 502,188 Z" fill="#d8cbb8" opacity="0.88"/>
-    <!-- Paving stripes -->
-    <g stroke="#bba894" stroke-width="0.7" opacity="0.45">
-      <line x1="502" y1="28"  x2="892" y2="28"/>
-      <line x1="502" y1="48"  x2="892" y2="48"/>
-      <line x1="502" y1="68"  x2="892" y2="68"/>
-      <line x1="502" y1="88"  x2="892" y2="88"/>
-      <line x1="502" y1="108" x2="892" y2="108"/>
-      <line x1="502" y1="128" x2="892" y2="128"/>
-      <line x1="502" y1="148" x2="892" y2="148"/>
-      <line x1="502" y1="168" x2="892" y2="168"/>
-    </g>
-    <!-- Lawn bleed back in after courtyard -->
-    <path d="M 502,188 L 892,188 L 892,225 C 850,218 800,228 760,222 C 715,215 640,232 590,225 L 502,222 Z"
-          fill="#c4e090"/>
+        <!-- ═══════ MASTER PLAN LAYOUT (NHM-like) ═══════ -->
+        <!-- Conservation in Action Yard (top-left) -->
+        <path d="M22,38 L322,38 L322,206 L26,206 Z" fill="#d3dec0" opacity="0.72"/>
+        <rect x="26" y="45" width="136" height="150" rx="2" fill="#cfc2ad" stroke="#9f9178" stroke-width="1.2"/>
+        <path d="M172,52 L312,52 L312,196 L172,196 Z" fill="#d9e7cc"/>
+        <g opacity="0.5" stroke="#7fa065" stroke-width="0.9" fill="none">
+      <rect x="188" y="70" width="36" height="28" rx="1"/>
+      <rect x="230" y="70" width="36" height="28" rx="1"/>
+      <rect x="188" y="106" width="36" height="28" rx="1"/>
+      <rect x="230" y="106" width="36" height="28" rx="1"/>
+        </g>
 
-    <!-- ═══════ CONSERVATION IN ACTION YARD — upper left ═══════ -->
-    <rect x="8" y="60" width="260" height="160" rx="2" fill="#b4c888" stroke="#82a050" stroke-width="1" opacity="0.45"/>
-    <!-- Main structure -->
-    <rect x="8" y="68" width="128" height="148" rx="2" fill="#c8b490" stroke="#9a8060" stroke-width="1.5"/>
-    <line x1="8"   y1="142" x2="136" y2="142" stroke="#9a8060" stroke-width="0.9"/>
-    <line x1="72"  y1="68"  x2="72"  y2="216" stroke="#9a8060" stroke-width="0.9"/>
-    <!-- Raised tanks -->
-    <circle cx="175" cy="100" r="18" fill="#90b465" stroke="#6a9040" stroke-width="1.5"/>
-    <circle cx="220" cy="100" r="18" fill="#90b465" stroke="#6a9040" stroke-width="1.5"/>
-    <circle cx="175" cy="148" r="18" fill="#90b465" stroke="#6a9040" stroke-width="1.5"/>
-    <circle cx="220" cy="148" r="18" fill="#90b465" stroke="#6a9040" stroke-width="1.5"/>
-    <circle cx="175" cy="100" r="9" fill="#72a048" opacity="0.6"/>
-    <circle cx="220" cy="100" r="9" fill="#72a048" opacity="0.6"/>
-    <circle cx="175" cy="148" r="9" fill="#72a048" opacity="0.6"/>
-    <circle cx="220" cy="148" r="9" fill="#72a048" opacity="0.6"/>
+        <!-- Darwin Centre Courtyard (top-right) -->
+        <path d="M346,32 L872,32 L872,212 L520,212 L448,182 L414,124 Z" fill="#dfd5c5" opacity="0.92"/>
+        <g stroke="#c4b7a2" stroke-width="0.7" opacity="0.38">
+      <line x1="368" y1="64" x2="848" y2="64"/>
+      <line x1="356" y1="90" x2="860" y2="90"/>
+      <line x1="348" y1="116" x2="866" y2="116"/>
+      <line x1="364" y1="142" x2="856" y2="142"/>
+      <line x1="388" y1="168" x2="844" y2="168"/>
+        </g>
 
-    <!-- ═══════ UPPER HEDGE (horizontal divider) ═══════ -->
-    <path d="M 8,228 C 60,220 120,230 185,222 C 238,215 290,228 350,222 C 400,217 450,225 502,218"
-          fill="none" stroke="#3a6828" stroke-width="16" stroke-linecap="round" opacity="0.78"/>
-    <path d="M 8,228 C 60,220 120,230 185,222 C 238,215 290,228 350,222 C 400,217 450,225 502,218"
-          fill="none" stroke="#5c9040" stroke-width="8" stroke-linecap="round" opacity="0.45"/>
+        <!-- Learning + Activity Centre (middle) -->
+        <path d="M246,214 L660,214 L660,332 L246,332 Z" fill="#d7c7b2" stroke="#9e8a70" stroke-width="1.4"/>
+        <rect x="276" y="238" width="92" height="68" fill="#efe4d3" stroke="#ab9880" stroke-width="0.8"/>
+        <rect x="380" y="238" width="92" height="68" fill="#efe4d3" stroke="#ab9880" stroke-width="0.8"/>
+        <rect x="484" y="238" width="92" height="68" fill="#efe4d3" stroke="#ab9880" stroke-width="0.8"/>
 
-    <!-- ═══════ MAIN GARDEN LAWN (below hedge) ═══════ -->
-    <path d="M 8,222 L 892,222 L 892,547 L 8,547 Z" fill="#bee086"/>
+        <!-- Right-side hardscape spine -->
+        <path d="M844,34 L892,34 L892,462 L856,494 L826,494 L826,92 Z" fill="#d4cec4" opacity="0.88"/>
 
-    <!-- ═══════ BUILDINGS — Learning + Activity Centre ═══════ -->
-    <!-- Left building -->
-    <rect x="215" y="238" width="165" height="82" rx="3" fill="#ccb08c" stroke="#9e8060" stroke-width="1.5"/>
-    <rect x="227" y="251" width="28" height="20" rx="1" fill="#dcc8a8" stroke="#9e8060" stroke-width="0.8"/>
-    <rect x="263" y="251" width="28" height="20" rx="1" fill="#dcc8a8" stroke="#9e8060" stroke-width="0.8"/>
-    <rect x="299" y="251" width="28" height="20" rx="1" fill="#dcc8a8" stroke="#9e8060" stroke-width="0.8"/>
-    <rect x="227" y="283" width="28" height="20" rx="1" fill="#dcc8a8" stroke="#9e8060" stroke-width="0.8"/>
-    <rect x="263" y="283" width="28" height="20" rx="1" fill="#dcc8a8" stroke="#9e8060" stroke-width="0.8"/>
-    <rect x="299" y="283" width="28" height="20" rx="1" fill="#dcc8a8" stroke="#9e8060" stroke-width="0.8"/>
-    <!-- Right building -->
-    <rect x="444" y="238" width="240" height="82" rx="3" fill="#ccb08c" stroke="#9e8060" stroke-width="1.5"/>
-    <circle cx="564" cy="279" r="28" fill="#ddc8ac" stroke="#9e8060" stroke-width="1"/>
-    <circle cx="564" cy="279" r="16" fill="#e8d8c0" stroke="#9e8060" stroke-width="0.8"/>
-    <rect x="456" y="251" width="25" height="20" rx="1" fill="#dcc8a8" stroke="#9e8060" stroke-width="0.8"/>
-    <rect x="490" y="251" width="25" height="20" rx="1" fill="#dcc8a8" stroke="#9e8060" stroke-width="0.8"/>
-    <rect x="622" y="251" width="25" height="20" rx="1" fill="#dcc8a8" stroke="#9e8060" stroke-width="0.8"/>
-    <rect x="656" y="251" width="25" height="20" rx="1" fill="#dcc8a8" stroke="#9e8060" stroke-width="0.8"/>
-    <!-- Passage between buildings -->
-    <rect x="380" y="238" width="64" height="82" fill="#b4d880" opacity="0.9"/>
+        <!-- Garden lawn masses -->
+        <path d="M28,228 C120,214 216,220 270,246 C312,266 332,302 300,336 C266,372 210,408 194,448 C180,486 210,532 286,542 L30,542 Z" fill="#c6de9f"/>
+        <path d="M314,344 C410,310 566,322 644,364 C714,402 758,470 728,520 C688,536 614,546 482,548 C390,550 332,520 318,474 C304,428 280,380 314,344 Z" fill="#c2db98"/>
+        <path d="M646,252 C730,244 804,274 822,332 C840,392 792,446 732,456 C686,464 650,438 636,394 C620,346 602,262 646,252 Z" fill="#c9dfa2"/>
 
-    <!-- ═══════ AMPHITHEATRE — left ═══════ -->
-    <path d="M 8,308 C 8,365 42,405 88,408 L 88,322 Z"
-          fill="#a4c474" stroke="#789848" stroke-width="1.2" opacity="0.82"/>
-    <path d="M 14,325 C 16,362 38,394 72,404" fill="none" stroke="#72a048" stroke-width="0.9" opacity="0.55"/>
-    <path d="M 22,334 C 24,370 46,400 78,406" fill="none" stroke="#72a048" stroke-width="0.9" opacity="0.42"/>
-    <path d="M 32,342 C 34,378 56,404 84,406" fill="none" stroke="#72a048" stroke-width="0.9" opacity="0.32"/>
+        <!-- Main meandering path (central, like reference) -->
+        <path d="M410,332 C376,356 338,382 324,414 C310,448 330,478 368,500 C424,532 534,522 592,482 C654,440 670,388 648,358 C624,326 566,316 500,324 C466,328 438,338 410,332 Z"
+          fill="none" stroke="#c9bea5" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" opacity="0.42"/>
+        <path d="M410,332 C376,356 338,382 324,414 C310,448 330,478 368,500 C424,532 534,522 592,482 C654,440 670,388 648,358 C624,326 566,316 500,324 C466,328 438,338 410,332 Z"
+          fill="none" stroke="#e8decb" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
 
-    <!-- ═══════ WINDING MAIN PATH ═══════ -->
-    <!-- shadow -->
-    <path d="M 412,236
-             C 405,268 390,280 392,308
-             C 394,334 408,346 402,374
-             C 396,402 374,414 368,442
-             C 362,468 380,480 396,494
-             C 426,514 476,516 508,500
-             C 538,484 558,458 588,448
-             C 625,434 672,440 710,458
-             C 748,476 766,500 800,508
-             C 840,516 874,502 892,488"
-          fill="none" stroke="#a09870" stroke-width="22"
-          stroke-linecap="round" stroke-linejoin="round" opacity="0.38"/>
-    <!-- main fill -->
-    <path d="M 412,236
-             C 405,268 390,280 392,308
-             C 394,334 408,346 402,374
-             C 396,402 374,414 368,442
-             C 362,468 380,480 396,494
-             C 426,514 476,516 508,500
-             C 538,484 558,458 588,448
-             C 625,434 672,440 710,458
-             C 748,476 766,500 800,508
-             C 840,516 874,502 892,488"
-          fill="none" stroke="#e2d8be" stroke-width="16"
-          stroke-linecap="round" stroke-linejoin="round"/>
-    <!-- highlight -->
-    <path d="M 412,236
-             C 405,268 390,280 392,308
-             C 394,334 408,346 402,374
-             C 396,402 374,414 368,442
-             C 362,468 380,480 396,494
-             C 426,514 476,516 508,500
-             C 538,484 558,458 588,448
-             C 625,434 672,440 710,458
-             C 748,476 766,500 800,508
-             C 840,516 874,502 892,488"
-          fill="none" stroke="#d0c8a8" stroke-width="9"
-          stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
-
-    <!-- Left entry path -->
-    <path d="M 8,368 C 42,362 78,366 108,362 C 132,359 154,362 172,370 C 196,380 218,388 238,394"
-          fill="none" stroke="#e2d8be" stroke-width="13"
-          stroke-linecap="round" opacity="0.82"/>
-
-    <!-- Right entry path from edge -->
-    <path d="M 892,300 C 872,308 852,318 838,338 C 820,362 818,388 820,412"
-          fill="none" stroke="#e2d8be" stroke-width="11"
-          stroke-linecap="round" opacity="0.78"/>
-
-    <!-- Bottom path -->
-    <path d="M 80,540 C 220,548 440,552 620,548 C 730,546 820,536 888,524"
-          fill="none" stroke="#e2d8be" stroke-width="14" stroke-linecap="round"/>
-
-    <!-- Secondary loop path (around pond) -->
-    <path d="M 238,394
-             C 222,410 194,425 178,448
-             C 162,470 162,496 174,516
-             C 188,538 215,548 244,548
-             C 272,548 300,538 318,518
-             C 336,498 342,470 338,446
-             C 334,422 318,405 300,396
-             C 280,385 256,386 238,394 Z"
-          fill="none" stroke="#e2d8be" stroke-width="11"
-          stroke-linecap="round" opacity="0.75"/>
-
-    <!-- ═══════ WILDLIFE POND ═══════ -->
-    <!-- Bank -->
-    <path d="M 190,388 C 152,402 128,430 126,462
-             C 124,494 138,524 162,540
-             C 180,552 205,557 235,554
-             C 265,551 292,543 312,525
-             C 332,507 344,480 342,452
-             C 340,424 322,398 298,386
-             C 274,374 240,374 215,380
-             C 206,382 197,385 190,388 Z"
-          fill="#4a7860" opacity="0.38"/>
-    <!-- Water -->
-    <path d="M 196,394 C 160,408 138,434 136,464
-             C 134,494 148,522 170,538
-             C 188,550 211,555 238,552
-             C 265,549 290,541 308,523
-             C 326,505 338,480 336,454
-             C 334,428 318,404 295,392
-             C 272,380 240,380 218,386
-             C 210,388 202,391 196,394 Z"
+        <!-- Wildlife pond + sunken path (lower center-left) -->
+        <path d="M332,368 C286,396 260,438 266,478 C272,520 316,548 378,548 C454,548 516,512 530,456 C544,396 510,348 442,336 C404,330 362,344 332,368 Z"
+          fill="#4d7e69" opacity="0.34"/>
+        <path d="M346,378 C304,404 282,440 288,474 C294,506 330,530 384,530 C448,530 500,500 512,454 C524,412 496,370 438,360 C404,354 374,360 346,378 Z"
           fill="url(#pondFill)"/>
-    <!-- Ripples -->
-    <ellipse cx="238" cy="468" rx="55" ry="24" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="1.5"/>
-    <ellipse cx="238" cy="488" rx="30" ry="13" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
-    <!-- Aquatic plants -->
-    <ellipse cx="150" cy="498" rx="16" ry="9"  fill="#3a9060" opacity="0.65"/>
-    <ellipse cx="165" cy="398" rx="13" ry="7"  fill="#3a9060" opacity="0.55"/>
-    <ellipse cx="324" cy="436" rx="11" ry="6"  fill="#3a9060" opacity="0.5"/>
-    <ellipse cx="315" cy="528" rx="14" ry="7"  fill="#3a9060" opacity="0.55"/>
+        <ellipse cx="406" cy="456" rx="92" ry="42" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
 
-    <!-- ═══════ ROOT NETWORK HINT (subtle underground zone) ═══════ -->
-    <!-- A faint soil/root tone strip at the very base of the map -->
-    <path d="M 8,510 L 892,510 L 892,547 L 8,547 Z"
-          fill="#a89060" opacity="0.14"/>
-    <path d="M 8,510 L 892,510 L 892,547 L 8,547 Z"
-          fill="url(#rootPattern)"/>
-    <!-- Root-network lines suggesting underground connections under the trees -->
-    <g opacity="0.22" stroke="#7a5030" stroke-width="1" fill="none">
-      <path d="M 55,520 Q 75,508 95,520 Q 115,532 135,518"/>
-      <path d="M 72,540 Q 72,525 85,515"/>
-      <path d="M 105,540 Q 105,528 95,518"/>
-      <path d="M 650,518 Q 680,505 710,518 Q 740,531 770,515"/>
-      <path d="M 672,540 Q 672,522 685,512"/>
-      <path d="M 720,540 Q 720,525 710,515"/>
-    </g>
+        <!-- Curved perimeter paths -->
+        <path d="M12,392 C92,352 156,348 242,370" fill="none" stroke="#e8decb" stroke-width="11" stroke-linecap="round"/>
+        <path d="M20,534 C146,520 262,528 376,538" fill="none" stroke="#e8decb" stroke-width="12" stroke-linecap="round"/>
+        <path d="M622,540 C736,536 822,520 888,490" fill="none" stroke="#e8decb" stroke-width="12" stroke-linecap="round"/>
 
-    <!-- ═══════ TREES ═══════ -->
-    <!-- Top edge — conservation yard perimeter -->
-    <circle cx="44"  cy="38"  r="24" fill="url(#treeA)" opacity="0.9"/>
-    <circle cx="52"  cy="46"  r="17" fill="url(#treeB)" opacity="0.8"/>
-    <circle cx="252" cy="36"  r="26" fill="url(#treeA)" opacity="0.88"/>
-    <circle cx="262" cy="44"  r="19" fill="url(#treeB)" opacity="0.76"/>
+        <!-- Tree masses (watercolor blobs) -->
+        <g opacity="0.84">
+      <circle cx="62" cy="88" r="30" fill="url(#treeA)"/>
+      <circle cx="134" cy="116" r="24" fill="url(#treeB)"/>
+      <circle cx="282" cy="96" r="34" fill="url(#treeB)"/>
+      <circle cx="352" cy="84" r="22" fill="url(#treeA)"/>
+      <circle cx="534" cy="78" r="30" fill="url(#treeA)"/>
+      <circle cx="612" cy="86" r="24" fill="url(#treeB)"/>
+      <circle cx="706" cy="88" r="34" fill="url(#treeA)"/>
+      <circle cx="802" cy="106" r="30" fill="url(#treeB)"/>
+      <circle cx="832" cy="170" r="24" fill="url(#treeC)"/>
+      <circle cx="94" cy="302" r="30" fill="url(#treeB)"/>
+      <circle cx="162" cy="340" r="26" fill="url(#treeA)"/>
+      <circle cx="730" cy="306" r="30" fill="url(#treeB)"/>
+      <circle cx="788" cy="364" r="26" fill="url(#treeA)"/>
+      <circle cx="674" cy="426" r="28" fill="url(#treeC)"/>
+      <circle cx="222" cy="470" r="26" fill="url(#treeA)"/>
+      <circle cx="286" cy="512" r="30" fill="url(#treeB)"/>
+      <circle cx="578" cy="516" r="26" fill="url(#treeA)"/>
+      <circle cx="726" cy="514" r="30" fill="url(#treeB)"/>
+        </g>
 
-    <!-- Darwin courtyard perimeter -->
-    <circle cx="520" cy="28"  r="21" fill="url(#treeC)" opacity="0.84"/>
-    <circle cx="578" cy="18"  r="24" fill="url(#treeA)" opacity="0.82"/>
-    <circle cx="638" cy="14"  r="27" fill="url(#treeB)" opacity="0.88"/>
-    <circle cx="700" cy="16"  r="22" fill="url(#treeA)" opacity="0.82"/>
-    <circle cx="756" cy="20"  r="23" fill="url(#treeC)" opacity="0.84"/>
-    <circle cx="810" cy="22"  r="20" fill="url(#treeB)" opacity="0.8"/>
-    <circle cx="862" cy="30"  r="25" fill="url(#treeA)" opacity="0.86"/>
-    <circle cx="884" cy="80"  r="18" fill="url(#treeB)" opacity="0.8"/>
-    <circle cx="880" cy="152" r="22" fill="url(#treeA)" opacity="0.86"/>
-    <circle cx="884" cy="210" r="27" fill="url(#treeB)" opacity="0.9"/>
-
-    <!-- Hedge-line accent trees (upper) -->
-    <circle cx="140" cy="215" r="20" fill="url(#treeB)" opacity="0.92"/>
-    <circle cx="184" cy="220" r="18" fill="url(#treeA)" opacity="0.86"/>
-    <circle cx="240" cy="212" r="22" fill="url(#treeB)" opacity="0.92"/>
-    <circle cx="310" cy="218" r="19" fill="url(#treeC)" opacity="0.86"/>
-    <circle cx="364" cy="213" r="21" fill="url(#treeB)" opacity="0.90"/>
-    <circle cx="424" cy="215" r="20" fill="url(#treeA)" opacity="0.86"/>
-
-    <!-- Left side corridor -->
-    <circle cx="25"  cy="260" r="26" fill="url(#treeA)" opacity="0.9"/>
-    <circle cx="34"  cy="250" r="19" fill="url(#treeB)" opacity="0.84"/>
-    <circle cx="22"  cy="448" r="28" fill="url(#treeA)" opacity="0.9"/>
-    <circle cx="32"  cy="438" r="20" fill="url(#treeB)" opacity="0.82"/>
-    <circle cx="48"  cy="478" r="22" fill="url(#treeC)" opacity="0.86"/>
-
-    <!-- Right side corridor -->
-    <circle cx="870" cy="262" r="27" fill="url(#treeA)" opacity="0.9"/>
-    <circle cx="882" cy="272" r="20" fill="url(#treeB)" opacity="0.85"/>
-    <circle cx="875" cy="348" r="25" fill="url(#treeC)" opacity="0.88"/>
-    <circle cx="866" cy="426" r="29" fill="url(#treeB)" opacity="0.9"/>
-    <circle cx="882" cy="440" r="21" fill="url(#treeA)" opacity="0.84"/>
-    <circle cx="870" cy="506" r="26" fill="url(#treeA)" opacity="0.9"/>
-
-    <!-- Around pond (left cluster) -->
-    <circle cx="122" cy="388" r="26" fill="url(#treeB)" opacity="0.92"/>
-    <circle cx="110" cy="398" r="19" fill="url(#treeA)" opacity="0.85"/>
-    <circle cx="106" cy="442" r="22" fill="url(#treeA)" opacity="0.9"/>
-    <circle cx="116" cy="466" r="27" fill="url(#treeB)" opacity="0.92"/>
-    <circle cx="108" cy="498" r="20" fill="url(#treeC)" opacity="0.85"/>
-    <circle cx="128" cy="524" r="25" fill="url(#treeB)" opacity="0.88"/>
-
-    <!-- Upper-right of pond -->
-    <circle cx="342" cy="360" r="23" fill="url(#treeA)" opacity="0.86"/>
-    <circle cx="358" cy="352" r="27" fill="url(#treeB)" opacity="0.9"/>
-    <circle cx="410" cy="348" r="24" fill="url(#treeC)" opacity="0.85"/>
-    <circle cx="450" cy="355" r="22" fill="url(#treeA)" opacity="0.84"/>
-
-    <!-- Lower-right of pond -->
-    <circle cx="350" cy="508" r="24" fill="url(#treeB)" opacity="0.9"/>
-    <circle cx="334" cy="522" r="19" fill="url(#treeA)" opacity="0.84"/>
-    <circle cx="282" cy="532" r="20" fill="url(#treeC)" opacity="0.84"/>
-
-    <!-- Right garden trees -->
-    <circle cx="630" cy="348" r="28" fill="url(#treeA)" opacity="0.9"/>
-    <circle cx="648" cy="358" r="21" fill="url(#treeB)" opacity="0.84"/>
-    <circle cx="700" cy="342" r="25" fill="url(#treeC)" opacity="0.88"/>
-    <circle cx="758" cy="354" r="27" fill="url(#treeB)" opacity="0.9"/>
-    <circle cx="774" cy="364" r="20" fill="url(#treeA)" opacity="0.84"/>
-    <circle cx="820" cy="346" r="24" fill="url(#treeC)" opacity="0.86"/>
-    <circle cx="635" cy="460" r="26" fill="url(#treeA)" opacity="0.88"/>
-    <circle cx="650" cy="472" r="19" fill="url(#treeB)" opacity="0.82"/>
-    <circle cx="800" cy="452" r="28" fill="url(#treeA)" opacity="0.9"/>
-    <circle cx="815" cy="464" r="20" fill="url(#treeB)" opacity="0.84"/>
-    <circle cx="850" cy="492" r="23" fill="url(#treeC)" opacity="0.86"/>
-
-    <!-- Bottom garden trees -->
-    <circle cx="178" cy="510" r="24" fill="url(#treeA)" opacity="0.88"/>
-    <circle cx="192" cy="522" r="18" fill="url(#treeB)" opacity="0.82"/>
-    <circle cx="426" cy="518" r="22" fill="url(#treeC)" opacity="0.86"/>
-    <circle cx="458" cy="508" r="26" fill="url(#treeA)" opacity="0.88"/>
-    <circle cx="500" cy="522" r="20" fill="url(#treeB)" opacity="0.82"/>
-    <circle cx="558" cy="512" r="24" fill="url(#treeC)" opacity="0.86"/>
-    <circle cx="592" cy="526" r="19" fill="url(#treeA)" opacity="0.82"/>
+        <!-- Root hint strip -->
+        <path d="M8,510 L892,510 L892,547 L8,547 Z" fill="#a89060" opacity="0.14"/>
+        <path d="M8,510 L892,510 L892,547 L8,547 Z" fill="url(#rootPattern)"/>
 
     <!-- ═══════ SUBTLE AREA LABELS ═══════ -->
-    <text x="68"  y="256" text-anchor="middle" fill="#2a4a18" font-size="8" font-family="Georgia" font-style="italic" opacity="0.6">Conservation Yard</text>
-    <text x="696" y="98"  text-anchor="middle" fill="#2a2818" font-size="8" font-family="Georgia" font-style="italic" opacity="0.6">Darwin Centre Courtyard</text>
-    <text x="412" y="228" text-anchor="middle" fill="#2a4a18" font-size="8" font-family="Georgia" font-style="italic" opacity="0.6">Learning + Activity Centre</text>
-    <text x="238" y="444" text-anchor="middle" fill="#183848" font-size="8" font-family="Georgia" font-style="italic" opacity="0.72">Wildlife Pond</text>
-    <text x="720" y="418" text-anchor="middle" fill="#2a4a18" font-size="8" font-family="Georgia" font-style="italic" opacity="0.65">Wildlife Garden</text>
+    <rect class="map-label-bg" x="16" y="58" rx="11" width="156" height="40"/>
+    <text class="map-label" x="94" y="76" text-anchor="middle">Conservation in</text>
+    <text class="map-label" x="94" y="91" text-anchor="middle">Action Yard</text>
+
+    <rect class="map-label-bg" x="490" y="62" rx="11" width="188" height="46"/>
+    <text class="map-label" x="584" y="82" text-anchor="middle">Darwin Centre</text>
+    <text class="map-label" x="584" y="97" text-anchor="middle">Courtyard</text>
+
+    <rect class="map-label-bg" x="300" y="246" rx="11" width="218" height="46"/>
+    <text class="map-label" x="409" y="267" text-anchor="middle">Learning +</text>
+    <text class="map-label" x="409" y="282" text-anchor="middle">Activity Centre</text>
+
+    <rect class="map-label-bg" x="312" y="404" rx="11" width="188" height="48"/>
+    <text class="map-label" x="406" y="426" text-anchor="middle">Wildlife Pond +</text>
+    <text class="map-label" x="406" y="441" text-anchor="middle">Sunken Path</text>
+
+    <rect class="map-label-bg" x="336" y="517" rx="11" width="190" height="30"/>
+    <text class="map-label" x="431" y="537" text-anchor="middle">Wildlife Garden</text>
 
     <!-- ═══════ COMPASS ═══════ -->
     <g transform="translate(872, 532)" opacity="0.65">
@@ -480,13 +387,16 @@
       <rect x="55" y="-4" width="1.5" height="7" fill="#2a4a2a"/>
       <text x="27" y="-7" text-anchor="middle" fill="#2a4a2a" font-size="7.5" font-family="Arial">50 m</text>
     </g>
+    </g>
+
+    <rect width="900" height="555" fill="transparent" filter="url(#paperNoise)" opacity="0.55"/>
 
     <!-- ═══════════════════════════════════════════════════════
          NATURE INFO PINS  (5 total)
     ═══════════════════════════════════════════════════════════ -->
 
     <!-- 1 · ROOT NETWORKS (earthy brown) -->
-    <g class="info-pin" id="pin-0" transform="translate(558,452)"
+    <g class="info-pin" id="pin-0" transform="translate(452,346)"
        data-title="Root Networks"
        data-cat="underground"
        data-cat-label="Underground"
@@ -498,7 +408,7 @@
     </g>
 
     <!-- 2 · ANIMAL CALL SPECTROGRAMS (deep teal) -->
-    <g class="info-pin" id="pin-1" transform="translate(192,428)"
+    <g class="info-pin" id="pin-1" transform="translate(182,176)"
        data-title="Voices of the Garden"
        data-cat="acoustics"
        data-cat-label="Spectrograms"
@@ -510,7 +420,7 @@
     </g>
 
     <!-- 3 · WILDLIFE POND ECOSYSTEM (blue) -->
-    <g class="info-pin" id="pin-2" transform="translate(304,400)"
+    <g class="info-pin" id="pin-2" transform="translate(252,446)"
        data-title="Wildlife Pond Ecosystem"
        data-cat="aquatic"
        data-cat-label="Aquatic Habitat"
@@ -522,7 +432,7 @@
     </g>
 
     <!-- 4 · WOODLAND CANOPY (dark green) -->
-    <g class="info-pin" id="pin-3" transform="translate(54,398)"
+    <g class="info-pin" id="pin-3" transform="translate(698,172)"
        data-title="Woodland Canopy Layer"
        data-cat="woodland"
        data-cat-label="Woodland"
@@ -534,7 +444,7 @@
     </g>
 
     <!-- 5 · WILDFLOWER MEADOW (meadow green) -->
-    <g class="info-pin" id="pin-4" transform="translate(756,426)"
+    <g class="info-pin" id="pin-4" transform="translate(732,454)"
        data-title="Wildflower Meadow"
        data-cat="meadow"
        data-cat-label="Meadow"
@@ -546,15 +456,17 @@
     </g>
 
     <!-- ═══════════════════════════════════════════════════════
-         VISITOR PIN  (draggable red teardrop)
+         VISITOR PIN  (fixed location)
     ═══════════════════════════════════════════════════════════ -->
-    <g id="visitor-pin" style="cursor:grab">
+    <g id="visitor-pin" style="cursor:default">
       <ellipse id="vpin-shadow" cx="450" cy="502" rx="9" ry="3.5" fill="rgba(0,0,0,0.22)"/>
       <path id="vpin-body"
             d="M 450,470 C 435,470 424,481 424,494 C 424,510 450,530 450,530 C 450,530 476,510 476,494 C 476,481 465,470 450,470 Z"
             fill="#e02828" stroke="white" stroke-width="2.2"/>
       <circle id="vpin-ring" cx="450" cy="492" r="9"  fill="white"/>
       <circle id="vpin-dot"  cx="450" cy="492" r="5"  fill="#e02828"/>
+      <rect id="vpin-label-bg" x="462" y="478" width="70" height="20" rx="10" fill="rgba(247,242,232,0.95)" stroke="#cdbf9f" stroke-width="1"/>
+      <text id="vpin-label-text" x="497" y="491" text-anchor="middle" fill="#4a4435" font-size="9" font-family="Arial" font-weight="bold">You are here</text>
     </g>
 
   </svg>
@@ -583,7 +495,9 @@
       You are here
     </div>
   </div>
-  <p class="hint">Tap a pin to explore &nbsp;·&nbsp; Drag red pin to set your location &nbsp;·&nbsp; Double-tap map to jump there</p>
+  <p class="hint">Tap a pin to explore the garden &nbsp;·&nbsp; Tap the Root Networks pin to enter the underground visualization</p>
+</div>
+
 </div>
 
 <script>
@@ -651,6 +565,10 @@ pins.forEach(pin => {
   pin.style.cursor = 'pointer';
   pin.addEventListener('click', e => {
     e.stopPropagation();
+    if (pin.id === 'pin-0') {
+      window.location.href = './worm-local.html?step=1';
+      return;
+    }
     activePin === pin ? closeCard() : openCard(pin);
   });
 });
@@ -660,16 +578,15 @@ svg.addEventListener('click', e => {
   if (!e.target.closest('.info-pin') && !e.target.closest('#visitor-pin')) closeCard();
 });
 
-// ── Visitor pin drag ──────────────────────────────────────────────────────────
+// ── Visitor pin remains fixed ─────────────────────────────────────────────────
 const vpin    = document.getElementById('visitor-pin');
 const vpBody  = document.getElementById('vpin-body');
 const vpRing  = document.getElementById('vpin-ring');
 const vpDot   = document.getElementById('vpin-dot');
 const vpShad  = document.getElementById('vpin-shadow');
-
-let dragging  = false;
-let dragStart = { px: 0, py: 0, vx: 0, vy: 0 };
-let pinPos    = { x: 450, y: 500 }; // viewBox coords of pin base
+const vpLabelBg   = document.getElementById('vpin-label-bg');
+const vpLabelText = document.getElementById('vpin-label-text');
+let pinPos    = { x: 450, y: 312 }; // viewBox coords of pin base (centered)
 
 function clientToVB(cx, cy) {
   const sr = svg.getBoundingClientRect();
@@ -690,64 +607,13 @@ function setVPin(x, y) {
   vpRing.setAttribute('cx', x);   vpRing.setAttribute('cy', y - 8);
   vpDot.setAttribute('cx', x);    vpDot.setAttribute('cy', y - 8);
   vpShad.setAttribute('cx', x);   vpShad.setAttribute('cy', y + 4);
+  vpLabelBg.setAttribute('x', x + 12);
+  vpLabelBg.setAttribute('y', y - 22);
+  vpLabelText.setAttribute('x', x + 47);
+  vpLabelText.setAttribute('y', y - 9);
 }
 
-function getEventXY(e) {
-  return e.touches && e.touches.length
-    ? { cx: e.touches[0].clientX, cy: e.touches[0].clientY }
-    : { cx: e.clientX, cy: e.clientY };
-}
-
-vpin.addEventListener('mousedown',  startDrag);
-vpin.addEventListener('touchstart', startDrag, { passive: true });
-
-function startDrag(e) {
-  dragging = true;
-  const { cx, cy } = getEventXY(e);
-  dragStart = { px: cx, py: cy, vx: pinPos.x, vy: pinPos.y };
-  vpin.style.cursor = 'grabbing';
-  e.stopPropagation();
-}
-
-document.addEventListener('mousemove', onDrag);
-document.addEventListener('touchmove', onDrag, { passive: true });
-
-function onDrag(e) {
-  if (!dragging) return;
-  const { cx, cy } = getEventXY(e);
-  const sr = svg.getBoundingClientRect();
-  const vb = svg.viewBox.baseVal;
-  const dx = (cx - dragStart.px) * (vb.width  / sr.width);
-  const dy = (cy - dragStart.py) * (vb.height / sr.height);
-  setVPin(dragStart.vx + dx, dragStart.vy + dy);
-}
-
-document.addEventListener('mouseup',  endDrag);
-document.addEventListener('touchend', endDrag);
-
-function endDrag() {
-  if (dragging) { dragging = false; vpin.style.cursor = 'grab'; }
-}
-
-// Double-click to teleport pin
-svg.addEventListener('dblclick', e => {
-  if (e.target.closest('.info-pin')) return;
-  const { x, y } = clientToVB(e.clientX, e.clientY);
-  setVPin(x, y);
-});
-
-// Touch double-tap
-let lastTap = 0;
-svg.addEventListener('touchend', e => {
-  if (e.target.closest('.info-pin') || e.target.closest('#visitor-pin')) return;
-  const now = Date.now();
-  if (now - lastTap < 320) {
-    const t = e.changedTouches[0];
-    const { x, y } = clientToVB(t.clientX, t.clientY);
-    setVPin(x, y);
-  }
-  lastTap = now;
-});
+setVPin(pinPos.x, pinPos.y);
 </script>
 </body>
 </html>

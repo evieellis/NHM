@@ -1111,7 +1111,18 @@ function OverlayLegend({ step }) {
 }
 
 function ARLessonPrototype() {
-  const [step, setStep] = useState(1);
+  const getInitialStep = () => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const raw = Number(params.get("step"));
+      if (Number.isInteger(raw) && raw >= 1 && raw <= 3) return raw;
+    } catch (err) {
+      console.warn("Step query parse failed", err);
+    }
+    return 1;
+  };
+
+  const [step, setStep] = useState(getInitialStep);
   const [feedback, setFeedback] = useState("");
   const [parallax, setParallax] = useState({ x: 0, y: 0 });
 
@@ -1172,6 +1183,13 @@ function ARLessonPrototype() {
           </div>
 
           <div className="relative overflow-y-auto bg-[#ece5d5] px-4 pb-6 pt-5 md:px-8">
+            <a
+              href="./nhm-garden-map.html"
+              className="absolute left-4 top-3 z-20 inline-flex items-center gap-2 rounded-full border border-[#cdbf9f] bg-[#f7f2e8] px-3 py-1.5 text-xs font-semibold text-[#4a4435] shadow-[0_6px_16px_rgba(15,23,42,0.08)] transition hover:bg-[#efe5d1]"
+            >
+              ← Home Map
+            </a>
+
             {feedback && (
               <div className="absolute left-1/2 top-3 z-20 -translate-x-1/2 rounded-full bg-[#2f4733] px-4 py-2 text-sm font-medium text-white shadow-lg">
                 {feedback}
