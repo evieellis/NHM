@@ -597,6 +597,7 @@ let panY = 0;
 let panBounds = { minX: 0, maxX: 0, minY: 0, maxY: 0 };
 let dragState = null;
 let panFrameId = 0;
+let mobileMapFlattened = false;
 
 pins.forEach((pin) => {
   pin.style.cursor = 'pointer';
@@ -656,6 +657,21 @@ function updatePanBounds() {
 function centerMapViewport() {
   if (!mobilePanQuery.matches) return;
   updatePanBounds();
+}
+
+function flattenMobileMapRendering() {
+  if (mobileMapFlattened || !mobilePanQuery.matches) return;
+
+  mobileMapFlattened = true;
+  [
+    document.getElementById('map-base'),
+    document.querySelector('rect[filter="url(#paperNoise)"]'),
+    ...document.querySelectorAll('.info-pin circle[filter], #visitor-pin [filter]'),
+  ].forEach((el) => {
+    if (el) el.removeAttribute('filter');
+  });
+
+  svg.style.filter = 'none';
 }
 
 function dismissPanHint() {
@@ -756,6 +772,7 @@ function setVPin(x, y) {
 setVPin(pinPos.x, pinPos.y);
 
 requestAnimationFrame(() => {
+  flattenMobileMapRendering();
   centerMapViewport();
   setTimeout(centerMapViewport, 60);
 });
