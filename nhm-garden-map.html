@@ -596,6 +596,7 @@ let panX = 0;
 let panY = 0;
 let panBounds = { minX: 0, maxX: 0, minY: 0, maxY: 0 };
 let dragState = null;
+let panFrameId = 0;
 
 pins.forEach((pin) => {
   pin.style.cursor = 'pointer';
@@ -620,6 +621,14 @@ function applyPan() {
   svg.style.transform = `translate3d(${Math.round(panX)}px, ${Math.round(panY)}px, 0)`;
 }
 
+function schedulePan() {
+  if (panFrameId) return;
+  panFrameId = window.requestAnimationFrame(() => {
+    panFrameId = 0;
+    applyPan();
+  });
+}
+
 function updatePanBounds() {
   const wrapperWidth = mapWrapper.clientWidth;
   const wrapperHeight = mapWrapper.clientHeight;
@@ -641,7 +650,7 @@ function updatePanBounds() {
 
   panX = clamp(panX || (wrapperWidth - mapWidth) / 2, panBounds.minX, panBounds.maxX);
   panY = clamp(panY || (wrapperHeight - mapHeight) / 2, panBounds.minY, panBounds.maxY);
-  applyPan();
+  schedulePan();
 }
 
 function centerMapViewport() {
@@ -686,7 +695,7 @@ function moveDrag(event) {
 
   panX = clamp(dragState.originX + deltaX, panBounds.minX, panBounds.maxX);
   panY = clamp(dragState.originY + deltaY, panBounds.minY, panBounds.maxY);
-  applyPan();
+  schedulePan();
 }
 
 function endDrag(event) {
