@@ -39,7 +39,7 @@ function ProgressDots({ active }) {
 
 function Worm({ isTalking, compact }) {
   const wrapperClass = compact
-    ? "relative h-20 w-28 shrink-0 -translate-y-2"
+    ? "relative h-16 w-24 shrink-0 -translate-y-1"
     : "relative h-40 w-56 shrink-0 translate-x-2 translate-y-1";
 
   return (
@@ -1365,7 +1365,7 @@ function ARLessonPrototype() {
             <RootNetwork step={step} parallax={parallax} />
           </div>
 
-          <div className={isPhoneLandscape ? "flex h-full flex-col gap-1.5 overflow-hidden bg-[#ece5d5] px-2.5 pb-2 pt-2" : "relative overflow-y-auto bg-[#ece5d5] px-4 pb-6 pt-5 md:px-8"}>
+          <div className={isPhoneLandscape ? "grid h-full grid-rows-[auto_auto_1fr_auto] gap-1.5 overflow-hidden bg-[#ece5d5] px-2.5 pb-2 pt-2" : "relative overflow-y-auto bg-[#ece5d5] px-4 pb-6 pt-5 md:px-8"}>
             {!isPhoneLandscape && (
               <a
                 href="./nhm-garden-map.html"
@@ -1421,7 +1421,7 @@ function ARLessonPrototype() {
             )}
 
             <div className={isPhoneLandscape ? "grid min-h-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-2" : "mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4"}>
-              <div className={isPhoneLandscape ? "relative min-w-0 rounded-[20px] border border-[#d5cab3] bg-[#f7f2e8] px-3 py-2 text-sm font-medium leading-snug text-[#2f3527] shadow-[0_10px_20px_rgba(15,23,42,0.08)]" : "relative min-w-0 rounded-[24px] border border-[#d5cab3] bg-[#f7f2e8] px-5 py-4 text-lg font-medium leading-snug text-[#2f3527] shadow-[0_12px_30px_rgba(15,23,42,0.08)] md:px-6 md:py-5 md:text-[22px]"}>
+              <div className={isPhoneLandscape ? "relative min-w-0 rounded-[20px] border border-[#d5cab3] bg-[#f7f2e8] px-3 py-2.5 text-sm font-medium leading-snug text-[#2f3527] shadow-[0_10px_20px_rgba(15,23,42,0.08)]" : "relative min-w-0 rounded-[24px] border border-[#d5cab3] bg-[#f7f2e8] px-5 py-4 text-lg font-medium leading-snug text-[#2f3527] shadow-[0_12px_30px_rgba(15,23,42,0.08)] md:px-6 md:py-5 md:text-[22px]"}>
                 {current.bubble}
                 <span
                   aria-hidden
@@ -1432,7 +1432,7 @@ function ARLessonPrototype() {
                   className="pointer-events-none absolute -right-[13px] top-1/2 h-0 w-0 -translate-y-1/2 border-y-[10px] border-l-[14px] border-y-transparent border-l-[#f7f2e8]"
                 />
               </div>
-              <div className={isPhoneLandscape ? "justify-self-end pr-1 pt-0.5" : "justify-self-end"}>
+              <div className={isPhoneLandscape ? "justify-self-end pr-1 pt-1" : "justify-self-end"}>
                 <Worm isTalking={wormTalking} compact={isPhoneLandscape} />
               </div>
             </div>
@@ -1448,11 +1448,14 @@ function ARLessonPrototype() {
             )}
 
             {isPhoneLandscape ? (
-              <div className="relative z-50 mt-1 flex items-center justify-between rounded-xl bg-[#ece5d5]/95 px-1 py-1.5" style={{ marginBottom: "max(0px, env(safe-area-inset-bottom))" }}>
+              <div
+                className="relative z-50 grid grid-cols-[auto_1fr_auto] items-center gap-2 rounded-xl border border-[#d5cab3] bg-[#f7f2e8]/95 px-2 py-1.5"
+                style={{ marginBottom: "max(0px, env(safe-area-inset-bottom))" }}
+              >
                 <button
                   onClick={back}
                   disabled={step === 1}
-                  className={`relative z-[60] pointer-events-auto rounded-xl px-3 py-2 transition ${
+                  className={`relative z-[60] pointer-events-auto rounded-xl px-3 py-1.5 text-sm transition ${
                     step === 1
                       ? "cursor-not-allowed text-[#7f7764] opacity-70"
                       : "text-[#504730] hover:bg-[#e2d8c2]"
@@ -1461,11 +1464,11 @@ function ARLessonPrototype() {
                   &lt; Back
                 </button>
 
-                <div className="relative z-[60] pointer-events-none shrink-0 scale-90">
+                <div className="relative z-[60] flex justify-center pointer-events-none">
                   <ProgressDots active={step} />
                 </div>
 
-                <button onClick={next} className="relative z-[60] pointer-events-auto rounded-xl bg-[#3f5b3b] px-4 py-2.5 text-white transition hover:scale-[1.01] hover:bg-[#32492f] active:scale-[0.99]">
+                <button onClick={next} className="relative z-[60] pointer-events-auto whitespace-nowrap rounded-xl bg-[#3f5b3b] px-3.5 py-2 text-sm text-white transition hover:scale-[1.01] hover:bg-[#32492f] active:scale-[0.99]">
                   {step === 3 ? "Restart Journey >" : step === 1 ? "Start Journey >" : "Next Step >"}
                 </button>
               </div>
