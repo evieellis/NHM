@@ -1435,14 +1435,8 @@ function ARLessonPrototype() {
             )}
 
             <div className={isPhoneLandscape ? `grid min-h-0 grid-cols-[minmax(0,1fr)_auto] items-start ${isUltraCompact ? "gap-1.5" : "gap-2"}` : "mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4"}>
-              <div className={isPhoneLandscape ? `relative min-w-0 rounded-[20px] border border-[#d5cab3] bg-[#f7f2e8] ${isUltraCompact ? "px-2.5 py-2 text-[12px]" : "px-3 py-2.5 text-sm"} font-medium leading-snug text-[#2f3527] shadow-[0_10px_20px_rgba(15,23,42,0.08)]` : "relative min-w-0 rounded-[24px] border border-[#d5cab3] bg-[#f7f2e8] px-5 py-4 text-lg font-medium leading-snug text-[#2f3527] shadow-[0_12px_30px_rgba(15,23,42,0.08)] md:px-6 md:py-5 md:text-[22px]"}>
-                {isUltraCompact
-                  ? step === 1
-                    ? "A mature oak hides a fungal network."
-                    : step === 2
-                    ? "Fungal threads spread and connect root tips."
-                    : "Tree and fungi exchange sugars, water, and minerals."
-                  : current.bubble}
+              <div className={isPhoneLandscape ? `relative min-w-0 rounded-[20px] border border-[#d5cab3] bg-[#f7f2e8] ${isUltraCompact ? "px-2.5 py-2 text-[15px]" : "px-3 py-2.5 text-base"} font-medium leading-snug text-[#2f3527] shadow-[0_10px_20px_rgba(15,23,42,0.08)]` : "relative min-w-0 rounded-[24px] border border-[#d5cab3] bg-[#f7f2e8] px-5 py-4 text-lg font-medium leading-snug text-[#2f3527] shadow-[0_12px_30px_rgba(15,23,42,0.08)] md:px-6 md:py-5 md:text-[22px]"}>
+                {current.bubble}
                 <span
                   aria-hidden
                   className="pointer-events-none absolute -right-[15px] top-1/2 h-0 w-0 -translate-y-1/2 border-y-[11px] border-l-[15px] border-y-transparent border-l-[#d5cab3]"
