@@ -49,6 +49,76 @@
       width: 100%;
     }
 
+    .pan-hint {
+      position: absolute;
+      right: 14px;
+      top: 14px;
+      z-index: 25;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(201, 191, 168, 0.95);
+      background: rgba(247, 242, 230, 0.92);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+      color: #4a4435;
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      pointer-events: none;
+      opacity: 0.95;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    .pan-hint.hide {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+
+    .pan-hint-arrows {
+      position: relative;
+      width: 38px;
+      height: 14px;
+      flex: 0 0 auto;
+    }
+
+    .pan-hint-arrows::before,
+    .pan-hint-arrows::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 12px;
+      height: 12px;
+      border-top: 2px solid #4a7030;
+      border-right: 2px solid #4a7030;
+      transform-origin: center;
+      opacity: 0.95;
+    }
+
+    .pan-hint-arrows::before {
+      left: 0;
+      transform: translateY(-50%) rotate(-135deg);
+      animation: panArrowLeft 1.9s ease-in-out infinite;
+    }
+
+    .pan-hint-arrows::after {
+      right: 0;
+      transform: translateY(-50%) rotate(45deg);
+      animation: panArrowRight 1.9s ease-in-out infinite;
+    }
+
+    @keyframes panArrowLeft {
+      0%, 100% { transform: translateY(-50%) rotate(-135deg) translateX(0); opacity: 0.55; }
+      50% { transform: translateY(-50%) rotate(-135deg) translateX(-3px); opacity: 1; }
+    }
+
+    @keyframes panArrowRight {
+      0%, 100% { transform: translateY(-50%) rotate(45deg) translateX(0); opacity: 0.55; }
+      50% { transform: translateY(-50%) rotate(45deg) translateX(3px); opacity: 1; }
+    }
+
     #garden-svg {
       width: 100%;
       height: auto;
@@ -224,6 +294,11 @@
         width: max(1400px, 180vw);
         max-width: none;
       }
+
+      .pan-hint {
+        top: 10px;
+        right: 10px;
+      }
     }
   </style>
 </head>
@@ -249,6 +324,10 @@
 </div>
 
 <div class="map-wrapper" id="mapWrapper">
+  <div class="pan-hint" id="panHint" aria-hidden="true">
+    <span class="pan-hint-arrows"></span>
+    <span>Drag to pan</span>
+  </div>
 
   <!-- ═══════════════════════════════════════════════════════════
        LANDSCAPE SVG  —  viewBox 900 × 555
@@ -527,6 +606,7 @@ const vpShad  = document.getElementById('vpin-shadow');
 const vpLabelBg   = document.getElementById('vpin-label-bg');
 const vpLabelText = document.getElementById('vpin-label-text');
 let pinPos    = { x: 450, y: 312 }; // viewBox coords of pin base (centered)
+const panHint  = document.getElementById('panHint');
 
 function clientToVB(cx, cy) {
   const sr = svg.getBoundingClientRect();
@@ -570,6 +650,22 @@ requestAnimationFrame(() => {
 });
 
 window.addEventListener('resize', centerMapViewport, { passive: true });
+
+let panHintDismissed = false;
+function dismissPanHint() {
+  if (panHintDismissed) return;
+  panHintDismissed = true;
+  panHint.classList.add('hide');
+  window.setTimeout(() => {
+    panHint.style.display = 'none';
+  }, 260);
+}
+
+['pointerdown', 'touchstart', 'wheel', 'scroll'].forEach((eventName) => {
+  mapWrapper.addEventListener(eventName, dismissPanHint, { passive: true, once: true });
+});
+
+window.setTimeout(dismissPanHint, 8000);
 </script>
 </body>
 </html>
