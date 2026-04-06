@@ -92,7 +92,7 @@ function RootNetwork({ step, parallax }) {
     const THREE = window.THREE;
     console.log("Container dimensions:", container.clientWidth, "x", container.clientHeight);
     const scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0xddeecf, 20, 42);
+    scene.fog = new THREE.Fog(0xd7ebff, 22, 45);
 
     const camera = new THREE.PerspectiveCamera(44, 1, 0.1, 100);
     camera.position.set(0, 1.0, 5.2);
@@ -126,7 +126,7 @@ function RootNetwork({ step, parallax }) {
     scene.add(hemi, key, fill, rootLight);
 
     const ground = new THREE.Mesh(
-      new THREE.CircleGeometry(5.1, 64),
+      new THREE.CircleGeometry(10.5, 96),
       new THREE.MeshStandardMaterial({ color: 0x5f8247, roughness: 0.94, metalness: 0.01 })
     );
     ground.rotation.x = -Math.PI / 2;
@@ -145,11 +145,11 @@ function RootNetwork({ step, parallax }) {
     const soil = new THREE.Mesh(
       new THREE.BoxGeometry(10.8, 2.6, 8.5),
       new THREE.MeshStandardMaterial({
-        color: 0x4a3326,
+        color: 0x5c7f4d,
         roughness: 0.95,
         metalness: 0.01,
         transparent: true,
-        opacity: 0.94,
+        opacity: 0.88,
       })
     );
     soil.position.set(0, -1.35, 0);
@@ -761,7 +761,7 @@ function RootNetwork({ step, parallax }) {
   }, [threeRetryKey]);
 
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-t-[28px] bg-gradient-to-b from-[#d5f0ff] via-[#99d07e] to-[#5f8b42]">
+    <div className="relative h-full w-full overflow-hidden rounded-t-[28px] bg-gradient-to-b from-[#d6efff] via-[#9fd6ff] to-[#5da8ec]">
       <div ref={mountRef} className="absolute inset-0" />
 
       {(sceneStatus === "missing-three" || sceneStatus === "webgl-failed") && (
@@ -1135,6 +1135,8 @@ function OverlayLegend({ step, compact }) {
 function ARLessonPrototype() {
   const isPhoneLandscapeQuery =
     "(orientation: landscape) and (pointer: coarse) and (max-height: 620px) and (max-width: 1200px)";
+  const isPhonePortraitQuery =
+    "(orientation: portrait) and (pointer: coarse) and (max-width: 900px)";
 
   const getInitialStep = () => {
     try {
@@ -1154,6 +1156,10 @@ function ARLessonPrototype() {
     if (typeof window === "undefined" || !window.matchMedia) return false;
     return window.matchMedia(isPhoneLandscapeQuery).matches;
   });
+  const [isPhonePortrait, setIsPhonePortrait] = useState(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return false;
+    return window.matchMedia(isPhonePortraitQuery).matches;
+  });
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(() => {
     if (typeof window === "undefined" || !window.matchMedia) return false;
     return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -1171,16 +1177,20 @@ function ARLessonPrototype() {
     if (typeof window === "undefined" || !window.matchMedia) return;
 
     const phoneLandscapeMedia = window.matchMedia(isPhoneLandscapeQuery);
+    const phonePortraitMedia = window.matchMedia(isPhonePortraitQuery);
     const motionMedia = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     const onPhoneChange = (e) => setIsPhoneLandscape(e.matches);
+    const onPhonePortraitChange = (e) => setIsPhonePortrait(e.matches);
     const onMotionChange = (e) => setPrefersReducedMotion(e.matches);
 
     phoneLandscapeMedia.addEventListener("change", onPhoneChange);
+    phonePortraitMedia.addEventListener("change", onPhonePortraitChange);
     motionMedia.addEventListener("change", onMotionChange);
 
     return () => {
       phoneLandscapeMedia.removeEventListener("change", onPhoneChange);
+      phonePortraitMedia.removeEventListener("change", onPhonePortraitChange);
       motionMedia.removeEventListener("change", onMotionChange);
     };
   }, []);
@@ -1316,6 +1326,26 @@ function ARLessonPrototype() {
 
   const resetParallax = () => setParallax({ x: 0, y: 0 });
 
+  if (isPhonePortrait) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-[#ece5d5] p-6 text-center text-[#2f3527]">
+        <div className="max-w-sm rounded-3xl border border-[#d5cab3] bg-[#f7f2e8] px-6 py-7 shadow-[0_16px_36px_rgba(15,23,42,0.12)]">
+          <div className="mb-3 text-4xl">↻</div>
+          <h2 className="text-xl font-semibold">Rotate Your Phone</h2>
+          <p className="mt-2 text-sm text-[#5f573f]">
+            This experience is designed for phone landscape mode. Turn your phone sideways to continue.
+          </p>
+          <a
+            href="./nhm-garden-map.html"
+            className="mt-5 inline-flex items-center rounded-full border border-[#cdbf9f] bg-[#f7f2e8] px-4 py-2 text-sm font-semibold text-[#4a4435]"
+          >
+            ← Home Map
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={isPhoneLandscape ? "fixed inset-0 h-[100svh] w-screen overflow-hidden overscroll-none bg-[#ece5d5] text-slate-900" : "min-h-[100dvh] bg-[#dfd9c9] p-3 text-slate-900 md:p-8"}>
       <style>{`@keyframes wormTalkBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}`}</style>
@@ -1332,7 +1362,7 @@ function ARLessonPrototype() {
             <RootNetwork step={step} parallax={parallax} />
           </div>
 
-          <div className={isPhoneLandscape ? "grid h-full grid-rows-[auto_auto_auto_1fr_auto] gap-1.5 overflow-hidden bg-[#ece5d5] px-2.5 pb-2 pt-2" : "relative overflow-y-auto bg-[#ece5d5] px-4 pb-6 pt-5 md:px-8"}>
+          <div className={isPhoneLandscape ? "flex h-full flex-col justify-between gap-2 overflow-hidden bg-[#ece5d5] px-2.5 pb-2 pt-2" : "relative overflow-y-auto bg-[#ece5d5] px-4 pb-6 pt-5 md:px-8"}>
             {!isPhoneLandscape && (
               <a
                 href="./nhm-garden-map.html"
@@ -1349,7 +1379,7 @@ function ARLessonPrototype() {
             )}
 
             {isPhoneLandscape && (
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2">
                 <a
                   href="./nhm-garden-map.html"
                   className="inline-flex items-center gap-2 rounded-full border border-[#cdbf9f] bg-[#f7f2e8] px-3 py-1 text-[11px] font-semibold text-[#4a4435] shadow-[0_6px_16px_rgba(15,23,42,0.08)] transition hover:bg-[#efe5d1]"
@@ -1371,11 +1401,13 @@ function ARLessonPrototype() {
                   </button>
                 )}
 
-                {feedback && (
-                  <div className="rounded-full bg-[#2f4733] px-3 py-1 text-[11px] font-medium text-white shadow">
-                    {feedback}
-                  </div>
-                )}
+                <div className="min-h-[24px]">
+                  {feedback && (
+                    <div className="rounded-full bg-[#2f4733] px-3 py-1 text-[11px] font-medium text-white shadow">
+                      {feedback}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
@@ -1402,25 +1434,37 @@ function ARLessonPrototype() {
               </div>
             </div>
 
-            <div className={isPhoneLandscape ? "min-h-0 overflow-hidden" : "mx-auto max-w-[1200px]"}>
-              <div className={isPhoneLandscape ? "space-y-2" : "space-y-4"}>
-                <JourneyTrack step={step} compact={isPhoneLandscape} />
-                <JourneyCard step={step} compact={isPhoneLandscape} />
-                <OverlayLegend step={step} compact={isPhoneLandscape} />
+            {!isPhoneLandscape && (
+              <div className="mx-auto max-w-[1200px]">
+                <div className="space-y-4">
+                  <JourneyTrack step={step} compact={false} />
+                  <JourneyCard step={step} compact={false} />
+                  <OverlayLegend step={step} compact={false} />
+                </div>
               </div>
-            </div>
+            )}
 
-            <div className={isPhoneLandscape ? "flex items-center justify-between px-1.5 py-1" : "mt-5 flex items-center justify-between rounded-2xl border border-[#d5cab3] bg-[#f7f2e8]/85 px-3 py-3 backdrop-blur"}>
-              <button onClick={back} className="rounded-xl px-3 py-2 text-[#504730] transition hover:bg-[#e2d8c2]">
-                &lt; Back
-              </button>
+            {isPhoneLandscape ? (
+              <div className="relative z-50 flex items-center justify-end px-1.5 py-1">
+                <button onClick={next} className="relative z-[60] pointer-events-auto rounded-xl bg-[#3f5b3b] px-5 py-2.5 text-white transition hover:scale-[1.01] hover:bg-[#32492f] active:scale-[0.99]">
+                  {step === 3 ? "Restart Journey >" : step === 1 ? "Start Journey >" : "Next Step >"}
+                </button>
+              </div>
+            ) : (
+              <div className="relative z-50 mt-5 flex items-center justify-between rounded-2xl border border-[#d5cab3] bg-[#f7f2e8]/85 px-3 py-3 backdrop-blur">
+                <button onClick={back} className="relative z-[60] pointer-events-auto rounded-xl px-3 py-2 text-[#504730] transition hover:bg-[#e2d8c2]">
+                  &lt; Back
+                </button>
 
-              <ProgressDots active={step} />
+                <div className="relative z-[60] pointer-events-none">
+                  <ProgressDots active={step} />
+                </div>
 
-              <button onClick={next} className="rounded-xl bg-[#3f5b3b] px-4 py-2.5 text-white transition hover:scale-[1.01] hover:bg-[#32492f] active:scale-[0.99]">
-                {step === 3 ? "Restart" : current.cta} &gt;
-              </button>
-            </div>
+                <button onClick={next} className="relative z-[60] pointer-events-auto rounded-xl bg-[#3f5b3b] px-4 py-2.5 text-white transition hover:scale-[1.01] hover:bg-[#32492f] active:scale-[0.99]">
+                  {step === 3 ? "Restart" : current.cta} &gt;
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
