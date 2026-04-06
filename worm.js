@@ -1299,11 +1299,11 @@ function ARLessonPrototype() {
       // In landscape on phones/tablets, beta tracks left/right and gamma tracks up/down.
       if (isLandscape) {
         if (angle === 90 || angle === -270) {
-          rawX = beta;
-          rawY = -gamma;
-        } else {
           rawX = -beta;
           rawY = gamma;
+        } else {
+          rawX = beta;
+          rawY = -gamma;
         }
       }
 
