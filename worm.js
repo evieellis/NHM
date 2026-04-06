@@ -633,9 +633,9 @@ function RootNetwork({ step, parallax }) {
       canopyGroup.position.x = Math.sin(t * 0.65) * 0.08 + px * 0.16;
       canopyGroup.position.z = Math.cos(t * 0.52) * 0.06;
 
-      camera.position.x = px * 0.95;
-      camera.position.y = 1.15 + py * 0.28;
-      camera.lookAt(px * 0.3, 0.22 + py * 0.07, 0.22);
+      camera.position.x = px * 1.05;
+      camera.position.y = 1.15 + py * 0.62;
+      camera.lookAt(px * 0.34, 0.24 + py * 0.26, 0.22);
 
       const targetGlow = stepRef.current >= 2 ? 1 : 0;
       const pulse = 0.58 + 0.42 * Math.sin(t * 2.1);
@@ -1275,14 +1275,48 @@ function ARLessonPrototype() {
     if (!motionEnabled || typeof window === "undefined") return;
 
     const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+    const getOrientationAngle = () => {
+      if (typeof window === "undefined") return 0;
+      if (window.screen?.orientation && typeof window.screen.orientation.angle === "number") {
+        return window.screen.orientation.angle;
+      }
+      if (typeof window.orientation === "number") {
+        return window.orientation;
+      }
+      return 0;
+    };
+
     const onOrientation = (event) => {
       const gamma = typeof event.gamma === "number" ? event.gamma : 0;
       const beta = typeof event.beta === "number" ? event.beta : 0;
-      const nextX = clamp(gamma / 35, -1, 1);
-      const nextY = clamp((beta - 25) / 35, -1, 1);
+
+      const angle = getOrientationAngle();
+      const isLandscape = Math.abs(angle) === 90;
+
+      let rawX = gamma;
+      let rawY = beta - 25;
+
+      // In landscape on phones/tablets, beta tracks left/right and gamma tracks up/down.
+      if (isLandscape) {
+        if (angle === 90 || angle === -270) {
+          rawX = beta;
+          rawY = -gamma;
+        } else {
+          rawX = -beta;
+          rawY = gamma;
+        }
+      }
+
+      const deadzone = 1.2;
+      if (Math.abs(rawX) < deadzone) rawX = 0;
+      if (Math.abs(rawY) < deadzone) rawY = 0;
+
+      const nextX = clamp(rawX / 30, -1, 1);
+      const nextY = clamp(rawY / 30, -1, 1);
+
       setParallax((prev) => ({
-        x: prev.x * 0.82 + nextX * 0.18,
-        y: prev.y * 0.82 + nextY * 0.18,
+        x: prev.x * 0.68 + nextX * 0.32,
+        y: prev.y * 0.68 + nextY * 0.32,
       }));
     };
 
