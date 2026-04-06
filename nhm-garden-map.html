@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NHM Wildlife Garden — Interactive Map</title>
+  <title>The Invisible Garden</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -195,14 +195,109 @@
     .nav-btn:hover {
       background: #eee3ce;
     }
+
+    .rotate-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      align-items: center;
+      justify-content: center;
+      background: #ece5d5;
+      padding: 24px;
+      z-index: 999;
+      text-align: center;
+      color: #2f3527;
+    }
+
+    .rotate-card {
+      max-width: 360px;
+      border: 1px solid #d5cab3;
+      border-radius: 24px;
+      background: #f7f2e8;
+      padding: 24px;
+      box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12);
+    }
+
+    .rotate-phone {
+      width: 34px;
+      height: 52px;
+      margin: 0 auto 14px;
+      border-radius: 10px;
+      border: 3px solid #6b624f;
+      background: #f2ead8;
+      box-shadow: inset 0 0 0 1px rgba(107, 98, 79, 0.2);
+      animation: rotatePhoneHint 2.2s ease-in-out infinite;
+      transform-origin: center center;
+    }
+
+    .rotate-help {
+      margin-top: 12px;
+      border: 1px solid #d8cfba;
+      border-radius: 14px;
+      background: #efe8d8;
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 0.75rem;
+      color: #5b533f;
+    }
+
+    @keyframes rotatePhoneHint {
+      0% { transform: rotate(0deg); }
+      35% { transform: rotate(90deg); }
+      65% { transform: rotate(90deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    @media (orientation: portrait) and (pointer: coarse) and (max-width: 900px) {
+      .app-shell { display: none; }
+      .rotate-overlay { display: flex; }
+    }
+
+    @media (orientation: landscape) and (pointer: coarse) and (max-height: 620px) and (max-width: 1200px) {
+      body {
+        padding: 0;
+      }
+
+      .app-shell {
+        max-width: none;
+        width: 100vw;
+        min-height: 100svh;
+        border-radius: 0;
+        border: none;
+        padding: 10px;
+      }
+
+      .map-wrapper {
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-x pan-y;
+      }
+
+      #garden-svg {
+        width: 1300px;
+        max-width: none;
+      }
+    }
   </style>
 </head>
 <body>
 
+<div class="rotate-overlay" aria-hidden="true">
+  <div class="rotate-card">
+    <div class="rotate-phone"></div>
+    <h2 style="font-size:1.45rem;line-height:1.2;">Rotate Your Phone</h2>
+    <p style="margin-top:8px;font-size:0.95rem;color:#5f573f;">This map is designed for landscape mode. Turn your phone sideways to continue.</p>
+    <div class="rotate-help">
+      <strong style="color:#3f5b3b;">If it won&apos;t rotate:</strong><br>
+      Turn off Orientation Lock, then rotate your phone again.
+    </div>
+  </div>
+</div>
+
 <div class="app-shell">
 
 <div class="header">
-  <h1>Natural History Museum</h1>
+  <h1>The Invisible Garden</h1>
   <p>Wildlife Garden - Visitor Map</p>
 </div>
 
@@ -511,6 +606,13 @@ const closeBtn  = document.getElementById('closeBtn');
 const svg       = document.getElementById('garden-svg');
 const wrapper   = document.getElementById('mapWrapper');
 
+// Keep only the two interactive experiences on the home map.
+const ALLOWED_PIN_IDS = new Set(['pin-0', 'pin-1']);
+pins.forEach((pin) => {
+  if (!ALLOWED_PIN_IDS.has(pin.id)) pin.remove();
+});
+const visiblePins = pins.filter((pin) => ALLOWED_PIN_IDS.has(pin.id));
+
 let activePin = null;
 
 function getTranslate(el) {
@@ -551,17 +653,17 @@ function openCard(pin) {
   cardTag.className     = 'tag tag-' + pin.dataset.cat;
   card.className        = 'info-card show ' + pin.dataset.cat;
   positionCard(pin);
-  pins.forEach(p => p.querySelector('circle').setAttribute('stroke-width', '2.5'));
+  visiblePins.forEach(p => p.querySelector('circle').setAttribute('stroke-width', '2.5'));
   pin.querySelector('circle').setAttribute('stroke-width', '4.5');
 }
 
 function closeCard() {
   card.classList.remove('show');
-  pins.forEach(p => p.querySelector('circle').setAttribute('stroke-width', '2.5'));
+  visiblePins.forEach(p => p.querySelector('circle').setAttribute('stroke-width', '2.5'));
   activePin = null;
 }
 
-pins.forEach(pin => {
+visiblePins.forEach(pin => {
   pin.style.cursor = 'pointer';
   pin.addEventListener('click', e => {
     e.stopPropagation();
