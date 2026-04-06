@@ -39,12 +39,57 @@ function ProgressDots({ active }) {
 
 function Worm() {
   return (
-    <div className="relative h-40 w-56 shrink-0 translate-x-2 translate-y-1">
-  <img
-    src="./WORMY.png"
-    alt="Worm mascot"
-    className="h-full w-full object-contain drop-shadow-[0_10px_14px_rgba(15,23,42,0.28)]"
-  />
+    <div className="relative h-32 w-48 shrink-0">
+      <svg viewBox="0 0 340 210" className="h-full w-full drop-shadow-[0_10px_14px_rgba(15,23,42,0.28)]">
+        <defs>
+          <linearGradient id="wormSkin" x1="0" y1="0" x2="1" y2="1.1">
+            <stop offset="0%" stopColor="#ffb1c8" />
+            <stop offset="52%" stopColor="#ff7aa5" />
+            <stop offset="100%" stopColor="#de5f89" />
+          </linearGradient>
+          <linearGradient id="wormBelly" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#ffe4ee" />
+            <stop offset="100%" stopColor="#ffc4d8" />
+          </linearGradient>
+          <radialGradient id="wormCheek" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#ff9eb7" />
+            <stop offset="100%" stopColor="#ff9eb7" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+
+        <path d="M29 154 C44 139, 58 128, 74 118 C90 108, 106 103, 124 108" stroke="url(#wormSkin)" strokeWidth="28" strokeLinecap="round" fill="none" />
+        <path d="M121 109 C152 118, 175 143, 210 151 C244 159, 273 146, 287 122" stroke="url(#wormSkin)" strokeWidth="36" strokeLinecap="round" fill="none" />
+        <path d="M286 122 C301 95, 304 64, 289 44" stroke="url(#wormSkin)" strokeWidth="33" strokeLinecap="round" fill="none" />
+
+        <path d="M48 153 C64 139, 85 129, 107 125" stroke="url(#wormBelly)" strokeWidth="9" strokeLinecap="round" fill="none" />
+        <path d="M126 122 C153 133, 173 153, 206 160 C234 165, 258 158, 272 142" stroke="url(#wormBelly)" strokeWidth="12" strokeLinecap="round" fill="none" />
+
+        <ellipse cx="82" cy="121" rx="5.5" ry="3.5" fill="#f6a8c3" />
+        <ellipse cx="113" cy="110" rx="5" ry="3.3" fill="#f6a8c3" />
+        <ellipse cx="146" cy="124" rx="6" ry="3.5" fill="#f6a8c3" />
+        <ellipse cx="182" cy="145" rx="6" ry="3.5" fill="#f6a8c3" />
+        <ellipse cx="220" cy="156" rx="6" ry="3.5" fill="#f6a8c3" />
+
+        <ellipse cx="290" cy="42" rx="38" ry="31" fill="url(#wormSkin)" />
+        <ellipse cx="290" cy="52" rx="20" ry="12" fill="#ffd9e7" opacity="0.88" />
+
+        <ellipse cx="277" cy="37" rx="8" ry="8.5" fill="#fff" />
+        <ellipse cx="304" cy="37" rx="8" ry="8.5" fill="#fff" />
+        <circle cx="279" cy="38" r="3.7" fill="#2b2331" />
+        <circle cx="306" cy="38" r="3.7" fill="#2b2331" />
+        <circle cx="280.5" cy="36.5" r="1" fill="#fff" />
+        <circle cx="307.5" cy="36.5" r="1" fill="#fff" />
+
+        <path d="M279 57 C286 66, 297 66, 304 57" stroke="#9e3d63" strokeWidth="3.3" fill="none" strokeLinecap="round" />
+        <ellipse cx="268" cy="49" rx="12" ry="8" fill="url(#wormCheek)" />
+        <ellipse cx="313" cy="49" rx="12" ry="8" fill="url(#wormCheek)" />
+
+        <path d="M272 15 C267 5, 272 -3, 283 -8" stroke="#e86d95" strokeWidth="4" fill="none" strokeLinecap="round" />
+        <path d="M307 15 C313 7, 324 6, 330 12" stroke="#e86d95" strokeWidth="4" fill="none" strokeLinecap="round" />
+
+        <path d="M24 155 L10 160 L20 146 Z" fill="#f18bb0" />
+        <ellipse cx="182" cy="116" rx="11" ry="5" fill="#ffffff" opacity="0.35" />
+      </svg>
     </div>
   );
 }
@@ -1151,8 +1196,8 @@ function ARLessonPrototype() {
               </div>
             )}
 
-            <div className="mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4">
-              <div className="min-w-0 rounded-[24px] border border-[#d5cab3] bg-[#f7f2e8] px-5 py-4 text-lg font-medium leading-snug text-[#2f3527] shadow-[0_12px_30px_rgba(15,23,42,0.08)] md:px-6 md:py-5 md:text-[22px]">
+            <div className="mb-4 grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
+              <div className="rounded-[24px] border border-[#d5cab3] bg-[#f7f2e8] px-5 py-4 text-lg font-medium leading-snug text-[#2f3527] shadow-[0_12px_30px_rgba(15,23,42,0.08)] md:px-6 md:py-5 md:text-[22px]">
                 {current.bubble}
               </div>
               <div className="justify-self-end">

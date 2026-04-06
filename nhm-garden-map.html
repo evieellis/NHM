@@ -569,6 +569,10 @@ pins.forEach(pin => {
       window.location.href = './worm-local.html?step=1';
       return;
     }
+    if (pin.id === 'pin-1') {
+      window.location.href = './spectrogram-local.html';
+      return;
+    }
     activePin === pin ? closeCard() : openCard(pin);
   });
 });
