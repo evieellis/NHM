@@ -26,6 +26,12 @@
   </head>
   <body>
     <div id="root"></div>
-    <script type="text/babel" src="./worm.js?v=20260406-1120"></script>
+    <script>
+      // Force a fresh script fetch on every load to avoid stale mobile caches.
+      const appScript = document.createElement("script");
+      appScript.type = "text/babel";
+      appScript.src = `./worm.js?v=${Date.now()}`;
+      document.body.appendChild(appScript);
+    </script>
   </body>
 </html>
