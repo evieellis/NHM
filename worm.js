@@ -39,10 +39,10 @@ function ProgressDots({ active, compact = false }) {
 
 function Worm({ isTalking, compact, ultraCompact = false }) {
   const wrapperClass = ultraCompact
-    ? "relative h-14 w-20 shrink-0 -translate-y-1"
+    ? "pointer-events-none relative h-14 w-20 shrink-0 -translate-y-1"
     : compact
-    ? "relative h-16 w-24 shrink-0 -translate-y-1"
-    : "relative h-40 w-56 shrink-0 translate-x-2 translate-y-1";
+    ? "pointer-events-none relative h-16 w-24 shrink-0 -translate-y-1"
+    : "pointer-events-none relative h-40 w-56 shrink-0 translate-x-2 translate-y-1";
 
   return (
     <div className={wrapperClass}>
@@ -1541,7 +1541,7 @@ function ARLessonPrototype() {
 
             {isPhoneLandscape ? (
               <div
-                className={`relative z-20 mt-1.5 grid grid-cols-[auto_1fr_auto] items-center ${isUltraCompact ? "gap-1.5 px-0.5 py-1" : "gap-1.5 px-0.5 py-1"}`}
+                className={`relative z-50 mt-1.5 grid grid-cols-[auto_1fr_auto] items-center ${isUltraCompact ? "gap-1.5 px-0.5 py-1" : "gap-1.5 px-0.5 py-1"}`}
                 style={{ marginBottom: "max(0px, env(safe-area-inset-bottom))" }}
               >
                 <button
