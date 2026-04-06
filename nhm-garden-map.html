@@ -192,22 +192,36 @@
       }
 
       .app-shell {
+        display: flex;
+        flex-direction: column;
         max-width: none;
         width: 100vw;
-        min-height: 100svh;
+        height: 100svh;
         border-radius: 0;
         border: none;
         padding: 10px;
+        overflow: hidden;
+      }
+
+      .header {
+        flex: 0 0 auto;
       }
 
       .map-wrapper {
+        flex: 1 1 auto;
+        min-height: 0;
         overflow: auto;
         -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
         touch-action: pan-x pan-y;
       }
 
+      .bottom-bar {
+        flex: 0 0 auto;
+      }
+
       #garden-svg {
-        width: 1300px;
+        width: max(1400px, 180vw);
         max-width: none;
       }
     }
@@ -231,7 +245,7 @@
 
 <div class="header">
   <h1>The Invisible Garden</h1>
-  <p>Wildlife Garden - Visitor Map</p>
+  <p>A Natural History Museum Interactive Exhibit</p>
 </div>
 
 <div class="map-wrapper" id="mapWrapper">
@@ -540,6 +554,22 @@ function setVPin(x, y) {
 }
 
 setVPin(pinPos.x, pinPos.y);
+
+// Start mobile landscape users centered on the middle of the map instead of the top-left corner.
+function centerMapViewport() {
+  const maxScrollLeft = Math.max(0, mapWrapper.scrollWidth - mapWrapper.clientWidth);
+  const maxScrollTop = Math.max(0, mapWrapper.scrollHeight - mapWrapper.clientHeight);
+  mapWrapper.scrollLeft = maxScrollLeft / 2;
+  mapWrapper.scrollTop = maxScrollTop / 2;
+}
+
+const mapWrapper = document.getElementById('mapWrapper');
+requestAnimationFrame(() => {
+  centerMapViewport();
+  setTimeout(centerMapViewport, 60);
+});
+
+window.addEventListener('resize', centerMapViewport, { passive: true });
 </script>
 </body>
 </html>
