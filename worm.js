@@ -1330,7 +1330,10 @@ function ARLessonPrototype() {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-[#ece5d5] p-6 text-center text-[#2f3527]">
         <div className="max-w-sm rounded-3xl border border-[#d5cab3] bg-[#f7f2e8] px-6 py-7 shadow-[0_16px_36px_rgba(15,23,42,0.12)]">
-          <div className="mb-3 text-4xl">↻</div>
+          <style>{`@keyframes rotatePhoneHint{0%{transform:rotate(0deg);}35%{transform:rotate(90deg);}65%{transform:rotate(90deg);}100%{transform:rotate(0deg);}}`}</style>
+          <div className="mb-4 flex justify-center">
+            <div style={{ animation: "rotatePhoneHint 2.2s ease-in-out infinite" }} className="h-12 w-8 rounded-[10px] border-[3px] border-[#6b624f] bg-[#f2ead8] shadow-inner" />
+          </div>
           <h2 className="text-xl font-semibold">Rotate Your Phone</h2>
           <p className="mt-2 text-sm text-[#5f573f]">
             This experience is designed for phone landscape mode. Turn your phone sideways to continue.
@@ -1362,7 +1365,7 @@ function ARLessonPrototype() {
             <RootNetwork step={step} parallax={parallax} />
           </div>
 
-          <div className={isPhoneLandscape ? "flex h-full flex-col justify-between gap-2 overflow-hidden bg-[#ece5d5] px-2.5 pb-2 pt-2" : "relative overflow-y-auto bg-[#ece5d5] px-4 pb-6 pt-5 md:px-8"}>
+          <div className={isPhoneLandscape ? "flex h-full flex-col gap-1.5 overflow-hidden bg-[#ece5d5] px-2.5 pb-2 pt-2" : "relative overflow-y-auto bg-[#ece5d5] px-4 pb-6 pt-5 md:px-8"}>
             {!isPhoneLandscape && (
               <a
                 href="./nhm-garden-map.html"
@@ -1445,7 +1448,23 @@ function ARLessonPrototype() {
             )}
 
             {isPhoneLandscape ? (
-              <div className="relative z-50 flex items-center justify-end px-1.5 py-1">
+              <div className="relative z-50 mt-auto flex items-center justify-between px-1.5 py-1">
+                <button
+                  onClick={back}
+                  disabled={step === 1}
+                  className={`relative z-[60] pointer-events-auto rounded-xl px-3 py-2 transition ${
+                    step === 1
+                      ? "cursor-not-allowed text-[#9f9783]"
+                      : "text-[#504730] hover:bg-[#e2d8c2]"
+                  }`}
+                >
+                  &lt; Back
+                </button>
+
+                <div className="relative z-[60] pointer-events-none scale-90">
+                  <ProgressDots active={step} />
+                </div>
+
                 <button onClick={next} className="relative z-[60] pointer-events-auto rounded-xl bg-[#3f5b3b] px-5 py-2.5 text-white transition hover:scale-[1.01] hover:bg-[#32492f] active:scale-[0.99]">
                   {step === 3 ? "Restart Journey >" : step === 1 ? "Start Journey >" : "Next Step >"}
                 </button>
