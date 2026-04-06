@@ -1173,11 +1173,12 @@ function ARLessonPrototype() {
   });
   const [motionEnabled, setMotionEnabled] = useState(false);
   const [motionError, setMotionError] = useState("");
+  const [isStandaloneMode, setIsStandaloneMode] = useState(false);
   const [viewportHeight, setViewportHeight] = useState(() =>
     typeof window === "undefined" ? 0 : window.innerHeight
   );
   const didMountRef = useRef(false);
-  const isUltraCompact = isPhoneLandscape && viewportHeight > 0 && viewportHeight <= 460;
+  const isUltraCompact = isPhoneLandscape && viewportHeight > 0 && viewportHeight <= 430;
 
   useEffect(() => {
     if (typeof window === "undefined" || !window.matchMedia) return;
@@ -1204,6 +1205,22 @@ function ARLessonPrototype() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     setMotionAvailable("DeviceOrientationEvent" in window);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const checkStandalone = () => {
+      const mediaMatch =
+        typeof window.matchMedia === "function" &&
+        window.matchMedia("(display-mode: standalone)").matches;
+      const iosStandalone = typeof window.navigator !== "undefined" && window.navigator.standalone === true;
+      setIsStandaloneMode(Boolean(mediaMatch || iosStandalone));
+    };
+
+    checkStandalone();
+    window.addEventListener("resize", checkStandalone);
+    return () => window.removeEventListener("resize", checkStandalone);
   }, []);
 
   useEffect(() => {
@@ -1399,7 +1416,7 @@ function ARLessonPrototype() {
               <div className={`flex items-center justify-between ${isUltraCompact ? "gap-1.5" : "gap-2"}`}>
                 <a
                   href="./nhm-garden-map.html"
-                  className={`inline-flex items-center gap-2 rounded-full border border-[#cdbf9f] bg-[#f7f2e8] ${isUltraCompact ? "px-2.5 py-0.5 text-[10px]" : "px-3 py-1 text-[11px]"} font-semibold text-[#4a4435] shadow-[0_6px_16px_rgba(15,23,42,0.08)] transition hover:bg-[#efe5d1]`}
+                  className="inline-flex items-center gap-2 rounded-full border border-[#cdbf9f] bg-[#f7f2e8] px-2.5 py-0.5 text-[10px] font-semibold text-[#4a4435] shadow-[0_6px_16px_rgba(15,23,42,0.08)] transition hover:bg-[#efe5d1]"
                 >
                   ← Home Map
                 </a>
@@ -1408,7 +1425,7 @@ function ARLessonPrototype() {
                   <button
                     type="button"
                     onClick={enableMotionParallax}
-                    className={`rounded-full border ${isUltraCompact ? "px-2 py-0.5 text-[10px]" : "px-2.5 py-1 text-[11px]"} font-semibold transition ${
+                    className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold transition ${
                       motionEnabled
                         ? "border-[#8fa983] bg-[#dce8d6] text-[#355238]"
                         : "border-[#cdbf9f] bg-[#f7f2e8] text-[#4a4435] hover:bg-[#efe5d1]"
@@ -1420,7 +1437,7 @@ function ARLessonPrototype() {
 
                 <div className="min-h-[24px]">
                   {feedback && (
-                    <div className="rounded-full bg-[#2f4733] px-3 py-1 text-[11px] font-medium text-white shadow">
+                    <div className="rounded-full bg-[#2f4733] px-2.5 py-0.5 text-[10px] font-medium text-white shadow">
                       {feedback}
                     </div>
                   )}
@@ -1435,7 +1452,7 @@ function ARLessonPrototype() {
             )}
 
             <div className={isPhoneLandscape ? `grid min-h-0 grid-cols-[minmax(0,1fr)_auto] items-start ${isUltraCompact ? "gap-1.5" : "gap-2"}` : "mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4"}>
-              <div className={isPhoneLandscape ? `relative min-w-0 rounded-[20px] border border-[#d5cab3] bg-[#f7f2e8] ${isUltraCompact ? "px-2.5 py-2 text-[15px]" : "px-3 py-2.5 text-base"} font-medium leading-snug text-[#2f3527] shadow-[0_10px_20px_rgba(15,23,42,0.08)]` : "relative min-w-0 rounded-[24px] border border-[#d5cab3] bg-[#f7f2e8] px-5 py-4 text-lg font-medium leading-snug text-[#2f3527] shadow-[0_12px_30px_rgba(15,23,42,0.08)] md:px-6 md:py-5 md:text-[22px]"}>
+              <div className={isPhoneLandscape ? `relative min-w-0 rounded-[20px] border border-[#d5cab3] bg-[#f7f2e8] ${isUltraCompact ? "px-2.5 py-2 text-[15px]" : isStandaloneMode ? "px-3 py-2.5 text-[18px]" : "px-3 py-2.5 text-[17px]"} font-medium leading-snug text-[#2f3527] shadow-[0_10px_20px_rgba(15,23,42,0.08)]` : "relative min-w-0 rounded-[24px] border border-[#d5cab3] bg-[#f7f2e8] px-5 py-4 text-lg font-medium leading-snug text-[#2f3527] shadow-[0_12px_30px_rgba(15,23,42,0.08)] md:px-6 md:py-5 md:text-[22px]"}>
                 {current.bubble}
                 <span
                   aria-hidden
@@ -1463,13 +1480,13 @@ function ARLessonPrototype() {
 
             {isPhoneLandscape ? (
               <div
-                className={`relative z-50 grid grid-cols-[auto_1fr_auto] items-center ${isUltraCompact ? "gap-1.5 px-1.5 py-1" : "gap-2 px-2 py-1.5"} rounded-xl border border-[#d5cab3] bg-[#f7f2e8]/95`}
+                className={`relative z-50 grid grid-cols-[auto_1fr_auto] items-center ${isUltraCompact ? "gap-1.5 px-1.5 py-1" : "gap-1.5 px-1.5 py-1"} rounded-xl border border-[#d5cab3] bg-[#f7f2e8]/95`}
                 style={{ marginBottom: "max(0px, env(safe-area-inset-bottom))" }}
               >
                 <button
                   onClick={back}
                   disabled={step === 1}
-                  className={`relative z-[60] pointer-events-auto rounded-xl ${isUltraCompact ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-sm"} transition ${
+                  className={`relative z-[60] pointer-events-auto rounded-xl ${isUltraCompact ? "px-2.5 py-1 text-xs" : "px-2.5 py-1 text-xs"} transition ${
                     step === 1
                       ? "cursor-not-allowed text-[#7f7764] opacity-70"
                       : "text-[#504730] hover:bg-[#e2d8c2]"
@@ -1479,10 +1496,10 @@ function ARLessonPrototype() {
                 </button>
 
                 <div className="relative z-[60] flex justify-center pointer-events-none">
-                  <ProgressDots active={step} compact={isUltraCompact} />
+                  <ProgressDots active={step} compact={true} />
                 </div>
 
-                <button onClick={next} className={`relative z-[60] pointer-events-auto whitespace-nowrap rounded-xl bg-[#3f5b3b] ${isUltraCompact ? "px-2.5 py-1.5 text-xs" : "px-3.5 py-2 text-sm"} text-white transition hover:scale-[1.01] hover:bg-[#32492f] active:scale-[0.99]`}>
+                <button onClick={next} className={`relative z-[60] pointer-events-auto whitespace-nowrap rounded-xl bg-[#3f5b3b] ${isUltraCompact ? "px-2.5 py-1.5 text-xs" : "px-2.5 py-1.5 text-xs"} text-white transition hover:scale-[1.01] hover:bg-[#32492f] active:scale-[0.99]`}>
                   {isUltraCompact
                     ? step === 3
                       ? "Restart >"
