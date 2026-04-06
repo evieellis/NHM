@@ -63,6 +63,13 @@ function Worm({ isTalking, compact, ultraCompact = false }) {
   );
 }
 
+const TILT_MODES = [
+  { label: "Tilt: Normal", x: 1, y: 1 },
+  { label: "Tilt: Flip X", x: -1, y: 1 },
+  { label: "Tilt: Flip Y", x: 1, y: -1 },
+  { label: "Tilt: Flip XY", x: -1, y: -1 },
+];
+
 function RootNetwork({ step, parallax }) {
   const mountRef = useRef(null);
   const stepRef = useRef(step);
@@ -1184,12 +1191,6 @@ function ARLessonPrototype() {
   );
   const didMountRef = useRef(false);
   const isUltraCompact = isPhoneLandscape && viewportHeight > 0 && viewportHeight <= 430;
-  const tiltModes = [
-    { label: "Tilt: Normal", x: 1, y: 1 },
-    { label: "Tilt: Flip X", x: -1, y: 1 },
-    { label: "Tilt: Flip Y", x: 1, y: -1 },
-    { label: "Tilt: Flip XY", x: -1, y: -1 },
-  ];
 
   useEffect(() => {
     if (typeof window === "undefined" || !window.matchMedia) return;
@@ -1325,7 +1326,7 @@ function ARLessonPrototype() {
         }
       }
 
-      const selectedTilt = tiltModes[tiltModeIndex] || tiltModes[0];
+      const selectedTilt = TILT_MODES[tiltModeIndex] || TILT_MODES[0];
       rawX *= selectedTilt.x;
       rawY *= selectedTilt.y;
 
@@ -1373,14 +1374,6 @@ function ARLessonPrototype() {
       console.error("Device orientation permission failed", err);
       setMotionError("Could not enable tilt controls.");
     }
-  };
-
-  const cycleTiltMode = () => {
-    setTiltModeIndex((idx) => {
-      const next = (idx + 1) % tiltModes.length;
-      setFeedback(tiltModes[next].label);
-      return next;
-    });
   };
 
   const next = () => {
@@ -1480,35 +1473,23 @@ function ARLessonPrototype() {
               <div className={`flex items-center justify-between ${isUltraCompact ? "gap-1.5" : "gap-2"}`}>
                 <a
                   href="./nhm-garden-map.html"
-                  className="inline-flex items-center gap-2 rounded-full border border-[#cdbf9f] bg-[#f7f2e8] px-2.5 py-0.5 text-[10px] font-semibold text-[#4a4435] shadow-[0_6px_16px_rgba(15,23,42,0.08)] transition hover:bg-[#efe5d1]"
+                  className="inline-flex h-8 items-center gap-2 rounded-full border border-[#cdbf9f] bg-[#f7f2e8] px-2.5 text-[10px] font-semibold text-[#4a4435] shadow-[0_6px_16px_rgba(15,23,42,0.08)] transition hover:bg-[#efe5d1]"
                 >
                   ← Home Map
                 </a>
 
                 {motionAvailable && !prefersReducedMotion && (
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={enableMotionParallax}
-                      className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold transition ${
-                        motionEnabled
-                          ? "border-[#8fa983] bg-[#dce8d6] text-[#355238]"
-                          : "border-[#cdbf9f] bg-[#f7f2e8] text-[#4a4435] hover:bg-[#efe5d1]"
-                      }`}
-                    >
-                      {motionEnabled ? "Tilt On" : "Enable Tilt"}
-                    </button>
-
-                    {motionEnabled && (
-                      <button
-                        type="button"
-                        onClick={cycleTiltMode}
-                        className="rounded-full border border-[#cdbf9f] bg-[#f7f2e8] px-2 py-0.5 text-[10px] font-semibold text-[#4a4435] transition hover:bg-[#efe5d1]"
-                      >
-                        {tiltModes[tiltModeIndex].label}
-                      </button>
-                    )}
-                  </div>
+                  <button
+                    type="button"
+                    onClick={enableMotionParallax}
+                    className={`h-8 rounded-full border px-2 text-[10px] font-semibold transition ${
+                      motionEnabled
+                        ? "border-[#8fa983] bg-[#dce8d6] text-[#355238]"
+                        : "border-[#cdbf9f] bg-[#f7f2e8] text-[#4a4435] hover:bg-[#efe5d1]"
+                    }`}
+                  >
+                    {motionEnabled ? "Tilt On" : "Enable Tilt"}
+                  </button>
                 )}
 
                 <div className="min-h-[24px]">
@@ -1527,8 +1508,8 @@ function ARLessonPrototype() {
               </div>
             )}
 
-            <div className={isPhoneLandscape ? `grid min-h-0 grid-cols-[minmax(0,1fr)_auto] items-start ${isUltraCompact ? "gap-1.5" : "gap-2"}` : "mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4"}>
-              <div className={isPhoneLandscape ? `relative min-w-0 rounded-[20px] border border-[#d5cab3] bg-[#f7f2e8] ${isUltraCompact ? "px-2.5 py-2 text-[15px]" : isStandaloneMode ? "px-3 py-2.5 text-[18px]" : "px-3 py-2.5 text-[17px]"} font-medium leading-snug text-[#2f3527] shadow-[0_10px_20px_rgba(15,23,42,0.08)]` : "relative min-w-0 rounded-[24px] border border-[#d5cab3] bg-[#f7f2e8] px-5 py-4 text-lg font-medium leading-snug text-[#2f3527] shadow-[0_12px_30px_rgba(15,23,42,0.08)] md:px-6 md:py-5 md:text-[22px]"}>
+            <div className={isPhoneLandscape ? `grid min-h-0 h-full grid-cols-[minmax(0,1fr)_auto] items-start ${isUltraCompact ? "gap-1.5" : "gap-2"}` : "mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4"}>
+              <div className={isPhoneLandscape ? `relative min-w-0 h-full rounded-[20px] border border-[#d5cab3] bg-[#f7f2e8] ${isUltraCompact ? "px-2.5 py-2 text-[15px]" : isStandaloneMode ? "px-3 py-2.5 text-[18px]" : "px-3 py-2.5 text-[17px]"} font-medium leading-snug text-[#2f3527] shadow-[0_10px_20px_rgba(15,23,42,0.08)]` : "relative min-w-0 rounded-[24px] border border-[#d5cab3] bg-[#f7f2e8] px-5 py-4 text-lg font-medium leading-snug text-[#2f3527] shadow-[0_12px_30px_rgba(15,23,42,0.08)] md:px-6 md:py-5 md:text-[22px]"}>
                 {current.bubble}
                 <span
                   aria-hidden
@@ -1562,7 +1543,7 @@ function ARLessonPrototype() {
                 <button
                   onClick={back}
                   disabled={step === 1}
-                  className={`relative z-[60] pointer-events-auto rounded-xl ${isUltraCompact ? "px-2.5 py-1 text-xs" : "px-2.5 py-1 text-xs"} transition ${
+                  className={`relative z-[60] pointer-events-auto h-8 rounded-xl ${isUltraCompact ? "px-2.5 text-xs" : "px-2.5 text-xs"} transition ${
                     step === 1
                       ? "cursor-not-allowed text-[#7f7764] opacity-70"
                       : "text-[#504730] hover:bg-[#e2d8c2]"
@@ -1575,7 +1556,7 @@ function ARLessonPrototype() {
                   <ProgressDots active={step} compact={true} />
                 </div>
 
-                <button onClick={next} className={`relative z-[60] pointer-events-auto whitespace-nowrap rounded-xl bg-[#3f5b3b] ${isUltraCompact ? "px-2.5 py-1.5 text-xs" : "px-2.5 py-1.5 text-xs"} text-white transition hover:scale-[1.01] hover:bg-[#32492f] active:scale-[0.99]`}>
+                <button onClick={next} className={`relative z-[60] pointer-events-auto h-8 whitespace-nowrap rounded-xl bg-[#3f5b3b] ${isUltraCompact ? "px-2.5 text-xs" : "px-2.5 text-xs"} text-white transition hover:scale-[1.01] hover:bg-[#32492f] active:scale-[0.99]`}>
                   {isUltraCompact
                     ? step === 3
                       ? "Restart >"
