@@ -1,0 +1,22 @@
+{
+  "name": "Invisible Garden",
+  "short_name": "Garden",
+  "description": "Worm lesson and underground root network interaction.",
+  "start_url": "./worm-local.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ece5d5",
+  "theme_color": "#ece5d5",
+  "icons": [
+    {
+      "src": "./WORMY.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./WORMY.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

@@ -22,13 +22,13 @@ const steps = [
   },
 ];
 
-function ProgressDots({ active }) {
+function ProgressDots({ active, compact = false }) {
   return (
-    <div className="flex items-center gap-2">
+    <div className={`flex items-center ${compact ? "gap-1.5" : "gap-2"}`}>
       {steps.map((s) => (
         <div
           key={s.id}
-          className={`h-2.5 w-2.5 rounded-full transition-all duration-300 ${
+          className={`${compact ? "h-2 w-2" : "h-2.5 w-2.5"} rounded-full transition-all duration-300 ${
             s.id <= active ? "bg-[#3f5b3b]" : "bg-[#b7b09d]"
           }`}
         />
@@ -37,8 +37,10 @@ function ProgressDots({ active }) {
   );
 }
 
-function Worm({ isTalking, compact }) {
-  const wrapperClass = compact
+function Worm({ isTalking, compact, ultraCompact = false }) {
+  const wrapperClass = ultraCompact
+    ? "relative h-14 w-20 shrink-0 -translate-y-1"
+    : compact
     ? "relative h-16 w-24 shrink-0 -translate-y-1"
     : "relative h-40 w-56 shrink-0 translate-x-2 translate-y-1";
 
@@ -1171,7 +1173,11 @@ function ARLessonPrototype() {
   });
   const [motionEnabled, setMotionEnabled] = useState(false);
   const [motionError, setMotionError] = useState("");
+  const [viewportHeight, setViewportHeight] = useState(() =>
+    typeof window === "undefined" ? 0 : window.innerHeight
+  );
   const didMountRef = useRef(false);
+  const isUltraCompact = isPhoneLandscape && viewportHeight > 0 && viewportHeight <= 460;
 
   useEffect(() => {
     if (typeof window === "undefined" || !window.matchMedia) return;
@@ -1198,6 +1204,14 @@ function ARLessonPrototype() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     setMotionAvailable("DeviceOrientationEvent" in window);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const onResize = () => setViewportHeight(window.innerHeight);
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, []);
 
   useEffect(() => {
@@ -1354,7 +1368,7 @@ function ARLessonPrototype() {
       <style>{`@keyframes wormTalkBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}`}</style>
 
       <div className={isPhoneLandscape ? "h-full w-full" : "mx-auto h-[calc(100dvh-1.5rem)] w-full max-w-[1536px] overflow-hidden rounded-[32px] border border-[#c9bfa8] bg-[#f7f2e6] shadow-2xl md:h-[calc(100dvh-4rem)]"}>
-        <div className={isPhoneLandscape ? "grid h-full grid-rows-[minmax(165px,38vh)_1fr]" : "grid h-full grid-rows-[minmax(280px,45vh)_1fr] md:grid-rows-[minmax(360px,48vh)_1fr]"}>
+        <div className={isPhoneLandscape ? `grid h-full ${isUltraCompact ? "grid-rows-[minmax(145px,34vh)_1fr]" : "grid-rows-[minmax(165px,38vh)_1fr]"}` : "grid h-full grid-rows-[minmax(280px,45vh)_1fr] md:grid-rows-[minmax(360px,48vh)_1fr]"}>
           <div
             className="relative"
             onMouseMove={handleSceneMove}
@@ -1365,7 +1379,7 @@ function ARLessonPrototype() {
             <RootNetwork step={step} parallax={parallax} />
           </div>
 
-          <div className={isPhoneLandscape ? "grid h-full grid-rows-[auto_auto_1fr_auto] gap-1.5 overflow-hidden bg-[#ece5d5] px-2.5 pb-2 pt-2" : "relative overflow-y-auto bg-[#ece5d5] px-4 pb-6 pt-5 md:px-8"}>
+          <div className={isPhoneLandscape ? `grid h-full grid-rows-[auto_auto_1fr_auto] ${isUltraCompact ? "gap-1 px-2 pb-1.5 pt-1.5" : "gap-1.5 px-2.5 pb-2 pt-2"} overflow-hidden bg-[#ece5d5]` : "relative overflow-y-auto bg-[#ece5d5] px-4 pb-6 pt-5 md:px-8"}>
             {!isPhoneLandscape && (
               <a
                 href="./nhm-garden-map.html"
@@ -1382,10 +1396,10 @@ function ARLessonPrototype() {
             )}
 
             {isPhoneLandscape && (
-              <div className="flex items-center justify-between gap-2">
+              <div className={`flex items-center justify-between ${isUltraCompact ? "gap-1.5" : "gap-2"}`}>
                 <a
                   href="./nhm-garden-map.html"
-                  className="inline-flex items-center gap-2 rounded-full border border-[#cdbf9f] bg-[#f7f2e8] px-3 py-1 text-[11px] font-semibold text-[#4a4435] shadow-[0_6px_16px_rgba(15,23,42,0.08)] transition hover:bg-[#efe5d1]"
+                  className={`inline-flex items-center gap-2 rounded-full border border-[#cdbf9f] bg-[#f7f2e8] ${isUltraCompact ? "px-2.5 py-0.5 text-[10px]" : "px-3 py-1 text-[11px]"} font-semibold text-[#4a4435] shadow-[0_6px_16px_rgba(15,23,42,0.08)] transition hover:bg-[#efe5d1]`}
                 >
                   ← Home Map
                 </a>
@@ -1394,7 +1408,7 @@ function ARLessonPrototype() {
                   <button
                     type="button"
                     onClick={enableMotionParallax}
-                    className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold transition ${
+                    className={`rounded-full border ${isUltraCompact ? "px-2 py-0.5 text-[10px]" : "px-2.5 py-1 text-[11px]"} font-semibold transition ${
                       motionEnabled
                         ? "border-[#8fa983] bg-[#dce8d6] text-[#355238]"
                         : "border-[#cdbf9f] bg-[#f7f2e8] text-[#4a4435] hover:bg-[#efe5d1]"
@@ -1420,9 +1434,15 @@ function ARLessonPrototype() {
               </div>
             )}
 
-            <div className={isPhoneLandscape ? "grid min-h-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-2" : "mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4"}>
-              <div className={isPhoneLandscape ? "relative min-w-0 rounded-[20px] border border-[#d5cab3] bg-[#f7f2e8] px-3 py-2.5 text-sm font-medium leading-snug text-[#2f3527] shadow-[0_10px_20px_rgba(15,23,42,0.08)]" : "relative min-w-0 rounded-[24px] border border-[#d5cab3] bg-[#f7f2e8] px-5 py-4 text-lg font-medium leading-snug text-[#2f3527] shadow-[0_12px_30px_rgba(15,23,42,0.08)] md:px-6 md:py-5 md:text-[22px]"}>
-                {current.bubble}
+            <div className={isPhoneLandscape ? `grid min-h-0 grid-cols-[minmax(0,1fr)_auto] items-start ${isUltraCompact ? "gap-1.5" : "gap-2"}` : "mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4"}>
+              <div className={isPhoneLandscape ? `relative min-w-0 rounded-[20px] border border-[#d5cab3] bg-[#f7f2e8] ${isUltraCompact ? "px-2.5 py-2 text-[12px]" : "px-3 py-2.5 text-sm"} font-medium leading-snug text-[#2f3527] shadow-[0_10px_20px_rgba(15,23,42,0.08)]` : "relative min-w-0 rounded-[24px] border border-[#d5cab3] bg-[#f7f2e8] px-5 py-4 text-lg font-medium leading-snug text-[#2f3527] shadow-[0_12px_30px_rgba(15,23,42,0.08)] md:px-6 md:py-5 md:text-[22px]"}>
+                {isUltraCompact
+                  ? step === 1
+                    ? "A mature oak hides a fungal network."
+                    : step === 2
+                    ? "Fungal threads spread and connect root tips."
+                    : "Tree and fungi exchange sugars, water, and minerals."
+                  : current.bubble}
                 <span
                   aria-hidden
                   className="pointer-events-none absolute -right-[15px] top-1/2 h-0 w-0 -translate-y-1/2 border-y-[11px] border-l-[15px] border-y-transparent border-l-[#d5cab3]"
@@ -1432,8 +1452,8 @@ function ARLessonPrototype() {
                   className="pointer-events-none absolute -right-[13px] top-1/2 h-0 w-0 -translate-y-1/2 border-y-[10px] border-l-[14px] border-y-transparent border-l-[#f7f2e8]"
                 />
               </div>
-              <div className={isPhoneLandscape ? "justify-self-end pr-1 pt-1" : "justify-self-end"}>
-                <Worm isTalking={wormTalking} compact={isPhoneLandscape} />
+              <div className={isPhoneLandscape ? `justify-self-end ${isUltraCompact ? "pr-0.5 pt-0" : "pr-1 pt-1"}` : "justify-self-end"}>
+                <Worm isTalking={wormTalking} compact={isPhoneLandscape} ultraCompact={isUltraCompact} />
               </div>
             </div>
 
@@ -1449,13 +1469,13 @@ function ARLessonPrototype() {
 
             {isPhoneLandscape ? (
               <div
-                className="relative z-50 grid grid-cols-[auto_1fr_auto] items-center gap-2 rounded-xl border border-[#d5cab3] bg-[#f7f2e8]/95 px-2 py-1.5"
+                className={`relative z-50 grid grid-cols-[auto_1fr_auto] items-center ${isUltraCompact ? "gap-1.5 px-1.5 py-1" : "gap-2 px-2 py-1.5"} rounded-xl border border-[#d5cab3] bg-[#f7f2e8]/95`}
                 style={{ marginBottom: "max(0px, env(safe-area-inset-bottom))" }}
               >
                 <button
                   onClick={back}
                   disabled={step === 1}
-                  className={`relative z-[60] pointer-events-auto rounded-xl px-3 py-1.5 text-sm transition ${
+                  className={`relative z-[60] pointer-events-auto rounded-xl ${isUltraCompact ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-sm"} transition ${
                     step === 1
                       ? "cursor-not-allowed text-[#7f7764] opacity-70"
                       : "text-[#504730] hover:bg-[#e2d8c2]"
@@ -1465,11 +1485,21 @@ function ARLessonPrototype() {
                 </button>
 
                 <div className="relative z-[60] flex justify-center pointer-events-none">
-                  <ProgressDots active={step} />
+                  <ProgressDots active={step} compact={isUltraCompact} />
                 </div>
 
-                <button onClick={next} className="relative z-[60] pointer-events-auto whitespace-nowrap rounded-xl bg-[#3f5b3b] px-3.5 py-2 text-sm text-white transition hover:scale-[1.01] hover:bg-[#32492f] active:scale-[0.99]">
-                  {step === 3 ? "Restart Journey >" : step === 1 ? "Start Journey >" : "Next Step >"}
+                <button onClick={next} className={`relative z-[60] pointer-events-auto whitespace-nowrap rounded-xl bg-[#3f5b3b] ${isUltraCompact ? "px-2.5 py-1.5 text-xs" : "px-3.5 py-2 text-sm"} text-white transition hover:scale-[1.01] hover:bg-[#32492f] active:scale-[0.99]`}>
+                  {isUltraCompact
+                    ? step === 3
+                      ? "Restart >"
+                      : step === 1
+                      ? "Start >"
+                      : "Next >"
+                    : step === 3
+                    ? "Restart Journey >"
+                    : step === 1
+                    ? "Start Journey >"
+                    : "Next Step >"}
                 </button>
               </div>
             ) : (
