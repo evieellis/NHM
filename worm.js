@@ -94,8 +94,8 @@ function RootNetwork({ step, parallax }) {
     const scene = new THREE.Scene();
     scene.fog = new THREE.Fog(0xddeecf, 20, 42);
 
-    const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
-    camera.position.set(0, 0.8, 6.2);
+    const camera = new THREE.PerspectiveCamera(44, 1, 0.1, 100);
+    camera.position.set(0, 1.0, 5.2);
 
     let renderer;
     try {
@@ -157,6 +157,7 @@ function RootNetwork({ step, parallax }) {
 
     const treeGroup = new THREE.Group();
     scene.add(treeGroup);
+    treeGroup.scale.set(1.15, 1.15, 1.15);
 
     const barkMat = new THREE.MeshStandardMaterial({ color: 0x6f4a34, roughness: 0.94, metalness: 0.02 });
     const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.52, 0.78, 3.4, 20), barkMat);
@@ -630,9 +631,9 @@ function RootNetwork({ step, parallax }) {
       canopyGroup.position.x = Math.sin(t * 0.65) * 0.08 + px * 0.16;
       canopyGroup.position.z = Math.cos(t * 0.52) * 0.06;
 
-      camera.position.x = px * 1.05;
-      camera.position.y = 1.05 + py * 0.35;
-      camera.lookAt(px * 0.36, -0.15 + py * 0.08, 0.35);
+      camera.position.x = px * 0.95;
+      camera.position.y = 1.15 + py * 0.28;
+      camera.lookAt(px * 0.3, 0.22 + py * 0.07, 0.22);
 
       const targetGlow = stepRef.current >= 2 ? 1 : 0;
       const pulse = 0.58 + 0.42 * Math.sin(t * 2.1);
@@ -1409,7 +1410,7 @@ function ARLessonPrototype() {
               </div>
             </div>
 
-            <div className={isPhoneLandscape ? "flex items-center justify-between rounded-2xl border border-[#d5cab3] bg-[#f7f2e8]/85 px-2 py-2 backdrop-blur" : "mt-5 flex items-center justify-between rounded-2xl border border-[#d5cab3] bg-[#f7f2e8]/85 px-3 py-3 backdrop-blur"}>
+            <div className={isPhoneLandscape ? "flex items-center justify-between px-1.5 py-1" : "mt-5 flex items-center justify-between rounded-2xl border border-[#d5cab3] bg-[#f7f2e8]/85 px-3 py-3 backdrop-blur"}>
               <button onClick={back} className="rounded-xl px-3 py-2 text-[#504730] transition hover:bg-[#e2d8c2]">
                 &lt; Back
               </button>
