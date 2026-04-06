@@ -1334,12 +1334,12 @@ function ARLessonPrototype() {
       if (Math.abs(rawX) < deadzone) rawX = 0;
       if (Math.abs(rawY) < deadzone) rawY = 0;
 
-      const nextX = clamp(rawX / 30, -1, 1);
-      const nextY = clamp(rawY / 30, -1, 1);
+      const nextX = clamp(rawX / 22, -1, 1);
+      const nextY = clamp(rawY / 22, -1, 1);
 
       setParallax((prev) => ({
-        x: prev.x * 0.68 + nextX * 0.32,
-        y: prev.y * 0.68 + nextY * 0.32,
+        x: prev.x * 0.52 + nextX * 0.48,
+        y: prev.y * 0.52 + nextY * 0.48,
       }));
     };
 
@@ -1426,6 +1426,10 @@ function ARLessonPrototype() {
           <p className="mt-2 text-sm text-[#5f573f]">
             This experience is designed for phone landscape mode. Turn your phone sideways to continue.
           </p>
+          <div className="mt-4 rounded-2xl border border-[#d8cfba] bg-[#efe8d8] px-4 py-3 text-left text-xs text-[#5b533f]">
+            <div className="font-semibold text-[#3f5b3b]">If it won&apos;t rotate:</div>
+            <div className="mt-1">Swipe down and turn off Orientation Lock, then rotate your phone again.</div>
+          </div>
           <a
             href="./nhm-garden-map.html"
             className="mt-5 inline-flex items-center rounded-full border border-[#cdbf9f] bg-[#f7f2e8] px-4 py-2 text-sm font-semibold text-[#4a4435]"
@@ -1439,7 +1443,10 @@ function ARLessonPrototype() {
 
   return (
     <div className={isPhoneLandscape ? "fixed inset-0 h-[100svh] w-screen overflow-hidden overscroll-none bg-[#ece5d5] text-slate-900" : "min-h-[100dvh] bg-[#dfd9c9] p-3 text-slate-900 md:p-8"}>
-      <style>{`@keyframes wormTalkBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}`}</style>
+      <style>{`
+        @keyframes wormTalkBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}
+        @keyframes tiltPulseGreen{0%{box-shadow:0 0 0 0 rgba(74,163,93,0.45);}70%{box-shadow:0 0 0 10px rgba(74,163,93,0);}100%{box-shadow:0 0 0 0 rgba(74,163,93,0);}}
+      `}</style>
 
       <div className={isPhoneLandscape ? "h-full w-full" : "mx-auto h-[calc(100dvh-1.5rem)] w-full max-w-[1536px] overflow-hidden rounded-[32px] border border-[#c9bfa8] bg-[#f7f2e6] shadow-2xl md:h-[calc(100dvh-4rem)]"}>
         <div className={isPhoneLandscape ? `grid h-full ${isUltraCompact ? "grid-rows-[minmax(185px,46vh)_1fr]" : "grid-rows-[minmax(210px,52vh)_1fr]"}` : "grid h-full grid-rows-[minmax(280px,45vh)_1fr] md:grid-rows-[minmax(360px,48vh)_1fr]"}>
@@ -1486,8 +1493,9 @@ function ARLessonPrototype() {
                     className={`h-8 rounded-full border px-2 text-[10px] font-semibold transition ${
                       motionEnabled
                         ? "border-[#8fa983] bg-[#dce8d6] text-[#355238]"
-                        : "border-[#cdbf9f] bg-[#f7f2e8] text-[#4a4435] hover:bg-[#efe5d1]"
+                        : "border-[#69b07c] bg-[#e6f7e9] text-[#2f6a3f] hover:bg-[#d8f0dd]"
                     }`}
+                    style={motionEnabled ? undefined : { animation: "tiltPulseGreen 1.6s ease-out infinite" }}
                   >
                     {motionEnabled ? "Tilt On" : "Enable Tilt"}
                   </button>
