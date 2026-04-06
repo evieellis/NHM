@@ -50,6 +50,7 @@
     }
 
     .pan-hint {
+      display: none;
       position: absolute;
       right: 14px;
       top: 14px;
@@ -280,10 +281,11 @@
       .map-wrapper {
         flex: 1 1 auto;
         min-height: 0;
-        overflow: auto;
+        overflow: hidden;
         -webkit-overflow-scrolling: touch;
         overscroll-behavior: contain;
-        touch-action: pan-x pan-y;
+        touch-action: none;
+        cursor: grab;
       }
 
       .bottom-bar {
@@ -291,11 +293,17 @@
       }
 
       #garden-svg {
+        position: absolute;
+        left: 0;
+        top: 0;
         width: max(1400px, 180vw);
         max-width: none;
+        transform: translate3d(0, 0, 0);
+        will-change: transform;
       }
 
       .pan-hint {
+        display: inline-flex;
         top: 10px;
         right: 10px;
       }
@@ -581,6 +589,14 @@
 // ── Pin interactions ──────────────────────────────────────────────────────────
 const svg = document.getElementById('garden-svg');
 const pins = Array.from(document.querySelectorAll('.info-pin'));
+const mapWrapper = document.getElementById('mapWrapper');
+const panHint = document.getElementById('panHint');
+
+const mobilePanQuery = window.matchMedia('(orientation: landscape) and (pointer: coarse) and (max-height: 620px) and (max-width: 1200px)');
+let panX = 0;
+let panY = 0;
+let panBounds = { minX: 0, maxX: 0, minY: 0, maxY: 0 };
+let dragState = null;
 
 pins.forEach((pin) => {
   pin.style.cursor = 'pointer';
@@ -597,6 +613,101 @@ pins.forEach((pin) => {
   });
 });
 
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function applyPan() {
+  svg.style.transform = `translate3d(${Math.round(panX)}px, ${Math.round(panY)}px, 0)`;
+}
+
+function updatePanBounds() {
+  const wrapperWidth = mapWrapper.clientWidth;
+  const wrapperHeight = mapWrapper.clientHeight;
+  const mapWidth = svg.offsetWidth;
+  const mapHeight = svg.offsetHeight;
+
+  if (!wrapperWidth || !wrapperHeight || !mapWidth || !mapHeight) return;
+
+  const extraWidth = Math.max(0, mapWidth - wrapperWidth);
+  const extraHeight = Math.max(0, mapHeight - wrapperHeight);
+
+  panBounds = {
+    minX: extraWidth ? -extraWidth : (wrapperWidth - mapWidth) / 2,
+    maxX: extraWidth ? 0 : (wrapperWidth - mapWidth) / 2,
+    minY: extraHeight ? -extraHeight : (wrapperHeight - mapHeight) / 2,
+    maxY: extraHeight ? 0 : (wrapperHeight - mapHeight) / 2,
+  };
+
+  panX = clamp(panX || (wrapperWidth - mapWidth) / 2, panBounds.minX, panBounds.maxX);
+  panY = clamp(panY || (wrapperHeight - mapHeight) / 2, panBounds.minY, panBounds.maxY);
+  applyPan();
+}
+
+function centerMapViewport() {
+  if (!mobilePanQuery.matches) return;
+  updatePanBounds();
+}
+
+function dismissPanHint() {
+  panHint.classList.add('hide');
+  window.setTimeout(() => {
+    panHint.style.display = 'none';
+  }, 260);
+}
+
+function beginDrag(event) {
+  if (!mobilePanQuery.matches) return;
+  if (event.target.closest('.info-pin')) return;
+  if (event.button != null && event.button !== 0) return;
+
+  dragState = {
+    pointerId: event.pointerId,
+    startX: event.clientX,
+    startY: event.clientY,
+    originX: panX,
+    originY: panY,
+    moved: false,
+  };
+
+  mapWrapper.setPointerCapture(event.pointerId);
+  mapWrapper.classList.add('dragging');
+  dismissPanHint();
+}
+
+function moveDrag(event) {
+  if (!dragState || dragState.pointerId !== event.pointerId) return;
+
+  const deltaX = event.clientX - dragState.startX;
+  const deltaY = event.clientY - dragState.startY;
+
+  if (!dragState.moved && Math.abs(deltaX) + Math.abs(deltaY) < 4) return;
+  dragState.moved = true;
+
+  panX = clamp(dragState.originX + deltaX, panBounds.minX, panBounds.maxX);
+  panY = clamp(dragState.originY + deltaY, panBounds.minY, panBounds.maxY);
+  applyPan();
+}
+
+function endDrag(event) {
+  if (!dragState || dragState.pointerId !== event.pointerId) return;
+
+  if (mapWrapper.hasPointerCapture(event.pointerId)) {
+    mapWrapper.releasePointerCapture(event.pointerId);
+  }
+
+  mapWrapper.classList.remove('dragging');
+  dragState = null;
+}
+
+mapWrapper.addEventListener('pointerdown', beginDrag);
+mapWrapper.addEventListener('pointermove', moveDrag);
+mapWrapper.addEventListener('pointerup', endDrag);
+mapWrapper.addEventListener('pointercancel', endDrag);
+mapWrapper.addEventListener('pointerleave', endDrag);
+window.addEventListener('resize', centerMapViewport, { passive: true });
+mobilePanQuery.addEventListener?.('change', centerMapViewport);
+
 // ── Visitor pin remains fixed ─────────────────────────────────────────────────
 const vpin    = document.getElementById('visitor-pin');
 const vpBody  = document.getElementById('vpin-body');
@@ -606,7 +717,6 @@ const vpShad  = document.getElementById('vpin-shadow');
 const vpLabelBg   = document.getElementById('vpin-label-bg');
 const vpLabelText = document.getElementById('vpin-label-text');
 let pinPos    = { x: 450, y: 312 }; // viewBox coords of pin base (centered)
-const panHint  = document.getElementById('panHint');
 
 function clientToVB(cx, cy) {
   const sr = svg.getBoundingClientRect();
@@ -635,34 +745,9 @@ function setVPin(x, y) {
 
 setVPin(pinPos.x, pinPos.y);
 
-// Start mobile landscape users centered on the middle of the map instead of the top-left corner.
-function centerMapViewport() {
-  const maxScrollLeft = Math.max(0, mapWrapper.scrollWidth - mapWrapper.clientWidth);
-  const maxScrollTop = Math.max(0, mapWrapper.scrollHeight - mapWrapper.clientHeight);
-  mapWrapper.scrollLeft = maxScrollLeft / 2;
-  mapWrapper.scrollTop = maxScrollTop / 2;
-}
-
-const mapWrapper = document.getElementById('mapWrapper');
 requestAnimationFrame(() => {
   centerMapViewport();
   setTimeout(centerMapViewport, 60);
-});
-
-window.addEventListener('resize', centerMapViewport, { passive: true });
-
-let panHintDismissed = false;
-function dismissPanHint() {
-  if (panHintDismissed) return;
-  panHintDismissed = true;
-  panHint.classList.add('hide');
-  window.setTimeout(() => {
-    panHint.style.display = 'none';
-  }, 260);
-}
-
-['pointerdown', 'touchstart', 'wheel', 'scroll'].forEach((eventName) => {
-  mapWrapper.addEventListener(eventName, dismissPanHint, { passive: true, once: true });
 });
 
 window.setTimeout(dismissPanHint, 8000);
