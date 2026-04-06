@@ -1513,7 +1513,7 @@ function ARLessonPrototype() {
             )}
 
             <div className={isPhoneLandscape ? `relative z-40 mb-1.5 grid min-h-0 grid-cols-[minmax(0,1fr)_auto] items-start ${isUltraCompact ? "gap-1.5" : "gap-2"}` : "mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4"}>
-              <div className={isPhoneLandscape ? `relative min-w-0 rounded-[20px] border border-[#d5cab3] bg-[#f7f2e8] ${isUltraCompact ? "px-2.5 py-2 text-[15px]" : isStandaloneMode ? "px-3 py-2.5 text-[18px]" : "px-3 py-2.5 text-[17px]"} font-medium leading-snug text-[#2f3527] shadow-[0_10px_20px_rgba(15,23,42,0.08)]` : "relative min-w-0 rounded-[24px] border border-[#d5cab3] bg-[#f7f2e8] px-5 py-4 text-lg font-medium leading-snug text-[#2f3527] shadow-[0_12px_30px_rgba(15,23,42,0.08)] md:px-6 md:py-5 md:text-[22px]"}>
+              <div className={isPhoneLandscape ? `relative min-w-0 rounded-[20px] border border-[#d5cab3] bg-[#f7f2e8] ${isUltraCompact ? "pl-3.5 pr-2 py-2 text-[15px]" : isStandaloneMode ? "pl-4 pr-2.5 py-2.5 text-[18px]" : "pl-4 pr-2.5 py-2.5 text-[17px]"} font-medium leading-snug text-[#2f3527] shadow-[0_10px_20px_rgba(15,23,42,0.08)]` : "relative min-w-0 rounded-[24px] border border-[#d5cab3] bg-[#f7f2e8] px-5 py-4 text-lg font-medium leading-snug text-[#2f3527] shadow-[0_12px_30px_rgba(15,23,42,0.08)] md:px-6 md:py-5 md:text-[22px]"}>
                 {current.bubble}
                 <span
                   aria-hidden
@@ -1547,13 +1547,14 @@ function ARLessonPrototype() {
                 <button
                   onClick={back}
                   disabled={step === 1}
+                  aria-label="Back"
                   className={`relative z-[60] pointer-events-auto h-8 rounded-xl ${isUltraCompact ? "px-2.5 text-xs" : "px-2.5 text-xs"} transition ${
                     step === 1
                       ? "cursor-not-allowed text-[#7f7764] opacity-70"
                       : "text-[#504730] hover:bg-[#e2d8c2]"
                   }`}
                 >
-                  &lt; Back
+                  ←
                 </button>
 
                 <div className="relative z-[60] flex justify-center pointer-events-none">
