@@ -1470,7 +1470,8 @@ function ARLessonPrototype() {
             )}
 
             {isPhoneLandscape && (
-              <div className={`flex items-center justify-between ${isUltraCompact ? "gap-1.5" : "gap-2"}`}>
+              <div className="relative">
+                <div className={`flex items-center justify-between ${isUltraCompact ? "gap-1.5" : "gap-2"}`}>
                 <a
                   href="./nhm-garden-map.html"
                   className="inline-flex h-8 items-center gap-2 rounded-full border border-[#cdbf9f] bg-[#f7f2e8] px-2.5 text-[10px] font-semibold text-[#4a4435] shadow-[0_6px_16px_rgba(15,23,42,0.08)] transition hover:bg-[#efe5d1]"
@@ -1491,13 +1492,16 @@ function ARLessonPrototype() {
                     {motionEnabled ? "Tilt On" : "Enable Tilt"}
                   </button>
                 )}
+                </div>
 
-                <div className="min-h-[24px]">
-                  {feedback && (
-                    <div className="rounded-full bg-[#2f4733] px-2.5 py-0.5 text-[10px] font-medium text-white shadow">
-                      {feedback}
-                    </div>
-                  )}
+                <div className="pointer-events-none absolute inset-x-0 top-1/2 z-30 -translate-y-1/2 flex justify-center">
+                  <div className="h-6" style={{ width: isUltraCompact ? "136px" : "180px" }}>
+                    {feedback && (
+                      <div className="mx-auto w-full truncate rounded-full bg-[#2f4733] px-2.5 py-0.5 text-center text-[10px] font-medium text-white shadow">
+                        {feedback}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
