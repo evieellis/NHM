@@ -1541,22 +1541,9 @@ function ARLessonPrototype() {
 
             {isPhoneLandscape ? (
               <div
-                className={`relative z-50 mt-1.5 grid grid-cols-[auto_1fr_auto] items-center ${isUltraCompact ? "gap-1.5 px-0.5 py-1" : "gap-1.5 px-0.5 py-1"}`}
+                className={`relative z-50 mt-1.5 grid grid-cols-[1fr_auto] items-center ${isUltraCompact ? "gap-1.5 px-0.5 py-1" : "gap-1.5 px-0.5 py-1"}`}
                 style={{ marginBottom: "max(0px, env(safe-area-inset-bottom))" }}
               >
-                <button
-                  onClick={back}
-                  disabled={step === 1}
-                  aria-label="Back"
-                  className={`relative z-[60] pointer-events-auto h-8 rounded-xl ${isUltraCompact ? "px-2.5 text-xs" : "px-2.5 text-xs"} transition ${
-                    step === 1
-                      ? "cursor-not-allowed text-[#7f7764] opacity-70"
-                      : "text-[#504730] hover:bg-[#e2d8c2]"
-                  }`}
-                >
-                  ←
-                </button>
-
                 <div className="relative z-[60] flex justify-center pointer-events-none">
                   <ProgressDots active={step} compact={true} />
                 </div>
