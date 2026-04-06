@@ -37,14 +37,26 @@ function ProgressDots({ active }) {
   );
 }
 
-function Worm() {
+function Worm({ isTalking, compact }) {
+  const wrapperClass = compact
+    ? "relative h-24 w-36 shrink-0"
+    : "relative h-40 w-56 shrink-0 translate-x-2 translate-y-1";
+
   return (
-    <div className="relative h-40 w-56 shrink-0 translate-x-2 translate-y-1">
-  <img
-    src="./WORMY.png"
-    alt="Worm mascot"
-    className="h-full w-full object-contain drop-shadow-[0_10px_14px_rgba(15,23,42,0.28)]"
-  />
+    <div className={wrapperClass}>
+      <div
+        style={
+          isTalking
+            ? { animation: "wormTalkBounce 0.72s ease-in-out infinite" }
+            : undefined
+        }
+      >
+        <img
+          src="./WORMY.png"
+          alt="Worm mascot"
+          className="h-full w-full object-contain drop-shadow-[0_10px_14px_rgba(15,23,42,0.28)]"
+        />
+      </div>
     </div>
   );
 }
@@ -920,11 +932,15 @@ function ExplanationCard() {
   );
 }
 
-function JourneyTrack({ step }) {
+function JourneyTrack({ step, compact }) {
+  const containerClass = compact
+    ? "rounded-3xl border border-[#d8cfba] bg-gradient-to-r from-[#e6efdf] via-[#f2ead0] to-[#e8e0cf] p-2.5 shadow-[0_8px_24px_rgba(15,23,42,0.08)]"
+    : "rounded-3xl border border-[#d8cfba] bg-gradient-to-r from-[#e6efdf] via-[#f2ead0] to-[#e8e0cf] p-4 shadow-[0_8px_24px_rgba(15,23,42,0.08)]";
+
   return (
-    <div className="rounded-3xl border border-[#d8cfba] bg-gradient-to-r from-[#e6efdf] via-[#f2ead0] to-[#e8e0cf] p-4 shadow-[0_8px_24px_rgba(15,23,42,0.08)]">
+    <div className={containerClass}>
       <div className="relative">
-        <div className="absolute left-8 right-8 top-6 h-[3px] rounded-full bg-gradient-to-r from-[#7fa06e] via-[#d8bf73] to-[#8a7a56]" />
+        <div className={`absolute left-6 right-6 ${compact ? "top-4.5" : "top-6"} h-[3px] rounded-full bg-gradient-to-r from-[#7fa06e] via-[#d8bf73] to-[#8a7a56]`} />
         <div className="grid grid-cols-3 gap-3">
           {steps.map((item) => {
             const active = item.id === step;
@@ -932,7 +948,7 @@ function JourneyTrack({ step }) {
             return (
               <div key={item.id} className="relative flex flex-col items-center gap-2 text-center">
                 <div
-                  className={`relative z-10 flex h-12 w-12 items-center justify-center rounded-full border-2 text-sm font-bold transition-all ${
+                  className={`relative z-10 flex ${compact ? "h-9 w-9 text-xs" : "h-12 w-12 text-sm"} items-center justify-center rounded-full border-2 font-bold transition-all ${
                     active
                       ? "border-[#3f5b3b] bg-[#3f5b3b] text-white shadow-[0_0_0_6px_rgba(63,91,59,0.2)]"
                       : complete
@@ -942,7 +958,15 @@ function JourneyTrack({ step }) {
                 >
                   {complete ? "✓" : item.id}
                 </div>
-                <div className={`text-xs font-semibold ${active ? "text-[#2f4733]" : "text-[#6b624f]"}`}>{item.title}</div>
+                <div className={`${compact ? "text-[10px] leading-tight" : "text-xs"} font-semibold ${active ? "text-[#2f4733]" : "text-[#6b624f]"}`}>
+                  {compact
+                    ? item.id === 1
+                      ? "Detect"
+                      : item.id === 2
+                      ? "Trace"
+                      : "Exchange"
+                    : item.title}
+                </div>
               </div>
             );
           })}
@@ -952,7 +976,37 @@ function JourneyTrack({ step }) {
   );
 }
 
-function JourneyCard({ step }) {
+function JourneyCard({ step, compact }) {
+  if (compact) {
+    if (step === 1) {
+      return (
+        <div className="rounded-2xl border border-[#d8cfba] bg-[#f9f5ea] p-3 shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
+          <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6d6248]">Step 1</div>
+          <h3 className="mt-1 text-base font-semibold text-[#2a3b2c]">Begin Beneath The Oak</h3>
+          <p className="mt-1 text-xs text-[#534d3d]">Reveal each hidden layer: roots, links, and exchange.</p>
+        </div>
+      );
+    }
+
+    if (step === 2) {
+      return (
+        <div className="rounded-2xl border border-[#d8cfba] bg-[#f9f5ea] p-3 shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
+          <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#3f5b3b]">Step 2</div>
+          <h3 className="mt-1 text-base font-semibold text-[#2a3b2c]">Hidden Underground Network</h3>
+          <p className="mt-1 text-xs text-[#534d3d]">Fungi connect root tips and form transport pathways.</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="rounded-2xl border border-[#d8cfba] bg-[#f9f5ea] p-3 shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
+        <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#73542c]">Step 3</div>
+        <h3 className="mt-1 text-base font-semibold text-[#2a3b2c]">Resource Exchange Complete</h3>
+        <p className="mt-1 text-xs text-[#534d3d]">Tree sends sugars. Fungi return water and minerals.</p>
+      </div>
+    );
+  }
+
   if (step === 1) {
     return (
       <div className="rounded-3xl border border-[#d8cfba] bg-[#f9f5ea] p-6 shadow-[0_16px_40px_rgba(15,23,42,0.08)]">
@@ -998,7 +1052,7 @@ function JourneyCard({ step }) {
   );
 }
 
-function OverlayLegend({ step }) {
+function OverlayLegend({ step, compact }) {
   const items = [
     {
       id: "roots",
@@ -1051,13 +1105,25 @@ function OverlayLegend({ step }) {
   ].filter((item) => step >= item.minStep);
 
   return (
-    <div className="rounded-2xl border border-[#d5cab3] bg-[#f7f2e8]/90 px-4 py-3 shadow-[0_8px_22px_rgba(15,23,42,0.07)]">
+    <div className={`rounded-2xl border border-[#d5cab3] bg-[#f7f2e8]/90 ${compact ? "px-3 py-2" : "px-4 py-3"} shadow-[0_8px_22px_rgba(15,23,42,0.07)]`}>
       <div className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-[#5f573f]">Overlay Key</div>
-      <div className="flex flex-wrap items-center gap-2.5 md:gap-3">
+      <div className={`flex flex-wrap items-center ${compact ? "gap-1.5" : "gap-2.5 md:gap-3"}`}>
         {items.map((item) => (
-          <div key={item.id} className="inline-flex items-center gap-2 rounded-full border border-[#d7ccb3] bg-white/70 px-3 py-1.5 text-xs font-medium text-[#4a4435]">
+          <div key={item.id} className={`inline-flex items-center ${compact ? "gap-1 px-2 py-1 text-[10px]" : "gap-2 px-3 py-1.5 text-xs"} rounded-full border border-[#d7ccb3] bg-white/70 font-medium text-[#4a4435]`}>
             {item.swatch}
-            <span>{item.label}</span>
+            <span>
+              {compact
+                ? item.id === "roots"
+                  ? "Roots"
+                  : item.id === "tips"
+                  ? "Tips"
+                  : item.id === "connections"
+                  ? "Links"
+                  : item.id === "nutrients"
+                  ? "Nutrients"
+                  : "Flow"
+                : item.label}
+            </span>
           </div>
         ))}
       </div>
@@ -1066,6 +1132,9 @@ function OverlayLegend({ step }) {
 }
 
 function ARLessonPrototype() {
+  const isPhoneLandscapeQuery =
+    "(orientation: landscape) and (pointer: coarse) and (max-height: 620px) and (max-width: 1200px)";
+
   const getInitialStep = () => {
     try {
       const params = new URLSearchParams(window.location.search);
@@ -1080,12 +1149,133 @@ function ARLessonPrototype() {
   const [step, setStep] = useState(getInitialStep);
   const [feedback, setFeedback] = useState("");
   const [parallax, setParallax] = useState({ x: 0, y: 0 });
+  const [isPhoneLandscape, setIsPhoneLandscape] = useState(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return false;
+    return window.matchMedia(isPhoneLandscapeQuery).matches;
+  });
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return false;
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  });
+  const [wormTalking, setWormTalking] = useState(false);
+  const [motionAvailable, setMotionAvailable] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return "DeviceOrientationEvent" in window;
+  });
+  const [motionEnabled, setMotionEnabled] = useState(false);
+  const [motionError, setMotionError] = useState("");
+  const didMountRef = useRef(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+
+    const phoneLandscapeMedia = window.matchMedia(isPhoneLandscapeQuery);
+    const motionMedia = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    const onPhoneChange = (e) => setIsPhoneLandscape(e.matches);
+    const onMotionChange = (e) => setPrefersReducedMotion(e.matches);
+
+    phoneLandscapeMedia.addEventListener("change", onPhoneChange);
+    motionMedia.addEventListener("change", onMotionChange);
+
+    return () => {
+      phoneLandscapeMedia.removeEventListener("change", onPhoneChange);
+      motionMedia.removeEventListener("change", onMotionChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setMotionAvailable("DeviceOrientationEvent" in window);
+  }, []);
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    if (!isPhoneLandscape) return;
+
+    const prevHtmlOverflow = document.documentElement.style.overflow;
+    const prevBodyOverflow = document.body.style.overflow;
+    const prevBodyHeight = document.body.style.height;
+
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    document.body.style.height = "100svh";
+
+    return () => {
+      document.documentElement.style.overflow = prevHtmlOverflow;
+      document.body.style.overflow = prevBodyOverflow;
+      document.body.style.height = prevBodyHeight;
+    };
+  }, [isPhoneLandscape]);
 
   useEffect(() => {
     if (!feedback) return;
     const t = setTimeout(() => setFeedback(""), 1400);
     return () => clearTimeout(t);
   }, [feedback]);
+
+  useEffect(() => {
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      return;
+    }
+    if (prefersReducedMotion) {
+      setWormTalking(false);
+      return;
+    }
+
+    setWormTalking(true);
+    const t = setTimeout(() => setWormTalking(false), 2600);
+    return () => clearTimeout(t);
+  }, [step, prefersReducedMotion]);
+
+  useEffect(() => {
+    if (!motionEnabled || typeof window === "undefined") return;
+
+    const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+    const onOrientation = (event) => {
+      const gamma = typeof event.gamma === "number" ? event.gamma : 0;
+      const beta = typeof event.beta === "number" ? event.beta : 0;
+      const nextX = clamp(gamma / 35, -1, 1);
+      const nextY = clamp((beta - 25) / 35, -1, 1);
+      setParallax((prev) => ({
+        x: prev.x * 0.82 + nextX * 0.18,
+        y: prev.y * 0.82 + nextY * 0.18,
+      }));
+    };
+
+    window.addEventListener("deviceorientation", onOrientation, true);
+    return () => window.removeEventListener("deviceorientation", onOrientation, true);
+  }, [motionEnabled]);
+
+  const enableMotionParallax = async () => {
+    if (typeof window === "undefined") return;
+    setMotionError("");
+
+    try {
+      if (!("DeviceOrientationEvent" in window)) {
+        setMotionError("Tilt sensing not available on this device.");
+        return;
+      }
+
+      const needsPermission =
+        typeof DeviceOrientationEvent !== "undefined" &&
+        typeof DeviceOrientationEvent.requestPermission === "function";
+
+      if (needsPermission) {
+        const result = await DeviceOrientationEvent.requestPermission();
+        if (result !== "granted") {
+          setMotionError("Tilt permission was not granted.");
+          return;
+        }
+      }
+
+      setMotionEnabled(true);
+    } catch (err) {
+      console.error("Device orientation permission failed", err);
+      setMotionError("Could not enable tilt controls.");
+    }
+  };
 
   const next = () => {
     if (step < 3) {
@@ -1111,11 +1301,13 @@ function ARLessonPrototype() {
   };
 
   const handleSceneMove = (e) => {
+    if (motionEnabled) return;
     const rect = e.currentTarget.getBoundingClientRect();
     updateParallax(e.clientX, e.clientY, rect);
   };
 
   const handleSceneTouchMove = (e) => {
+    if (motionEnabled) return;
     if (!e.touches || !e.touches[0]) return;
     const rect = e.currentTarget.getBoundingClientRect();
     updateParallax(e.touches[0].clientX, e.touches[0].clientY, rect);
@@ -1124,9 +1316,11 @@ function ARLessonPrototype() {
   const resetParallax = () => setParallax({ x: 0, y: 0 });
 
   return (
-    <div className="min-h-[100dvh] bg-[#dfd9c9] p-3 text-slate-900 md:p-8">
-      <div className="mx-auto h-[calc(100dvh-1.5rem)] w-full max-w-[1536px] overflow-hidden rounded-[32px] border border-[#c9bfa8] bg-[#f7f2e6] shadow-2xl md:h-[calc(100dvh-4rem)]">
-        <div className="grid h-full grid-rows-[minmax(280px,45vh)_1fr] md:grid-rows-[minmax(360px,48vh)_1fr]">
+    <div className={isPhoneLandscape ? "fixed inset-0 h-[100svh] w-screen overflow-hidden overscroll-none bg-[#ece5d5] text-slate-900" : "min-h-[100dvh] bg-[#dfd9c9] p-3 text-slate-900 md:p-8"}>
+      <style>{`@keyframes wormTalkBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}`}</style>
+
+      <div className={isPhoneLandscape ? "h-full w-full" : "mx-auto h-[calc(100dvh-1.5rem)] w-full max-w-[1536px] overflow-hidden rounded-[32px] border border-[#c9bfa8] bg-[#f7f2e6] shadow-2xl md:h-[calc(100dvh-4rem)]"}>
+        <div className={isPhoneLandscape ? "grid h-full grid-rows-[minmax(170px,40vh)_1fr]" : "grid h-full grid-rows-[minmax(280px,45vh)_1fr] md:grid-rows-[minmax(360px,48vh)_1fr]"}>
           <div
             className="relative"
             onMouseMove={handleSceneMove}
@@ -1137,38 +1331,85 @@ function ARLessonPrototype() {
             <RootNetwork step={step} parallax={parallax} />
           </div>
 
-          <div className="relative overflow-y-auto bg-[#ece5d5] px-4 pb-6 pt-5 md:px-8">
-            <a
-              href="./nhm-garden-map.html"
-              className="absolute left-4 top-3 z-20 inline-flex items-center gap-2 rounded-full border border-[#cdbf9f] bg-[#f7f2e8] px-3 py-1.5 text-xs font-semibold text-[#4a4435] shadow-[0_6px_16px_rgba(15,23,42,0.08)] transition hover:bg-[#efe5d1]"
-            >
-              ← Home Map
-            </a>
+          <div className={isPhoneLandscape ? "grid h-full grid-rows-[auto_auto_auto_1fr_auto] gap-1.5 overflow-hidden bg-[#ece5d5] px-2.5 pb-2 pt-2" : "relative overflow-y-auto bg-[#ece5d5] px-4 pb-6 pt-5 md:px-8"}>
+            {!isPhoneLandscape && (
+              <a
+                href="./nhm-garden-map.html"
+                className="absolute left-4 top-3 z-20 inline-flex items-center gap-2 rounded-full border border-[#cdbf9f] bg-[#f7f2e8] px-3 py-1.5 text-xs font-semibold text-[#4a4435] shadow-[0_6px_16px_rgba(15,23,42,0.08)] transition hover:bg-[#efe5d1]"
+              >
+                ← Home Map
+              </a>
+            )}
 
-            {feedback && (
+            {!isPhoneLandscape && feedback && (
               <div className="absolute left-1/2 top-3 z-20 -translate-x-1/2 rounded-full bg-[#2f4733] px-4 py-2 text-sm font-medium text-white shadow-lg">
                 {feedback}
               </div>
             )}
 
-            <div className="mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4">
-              <div className="min-w-0 rounded-[24px] border border-[#d5cab3] bg-[#f7f2e8] px-5 py-4 text-lg font-medium leading-snug text-[#2f3527] shadow-[0_12px_30px_rgba(15,23,42,0.08)] md:px-6 md:py-5 md:text-[22px]">
+            {isPhoneLandscape && (
+              <div className="flex items-center justify-between">
+                <a
+                  href="./nhm-garden-map.html"
+                  className="inline-flex items-center gap-2 rounded-full border border-[#cdbf9f] bg-[#f7f2e8] px-3 py-1 text-[11px] font-semibold text-[#4a4435] shadow-[0_6px_16px_rgba(15,23,42,0.08)] transition hover:bg-[#efe5d1]"
+                >
+                  ← Home Map
+                </a>
+
+                {motionAvailable && !prefersReducedMotion && (
+                  <button
+                    type="button"
+                    onClick={enableMotionParallax}
+                    className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold transition ${
+                      motionEnabled
+                        ? "border-[#8fa983] bg-[#dce8d6] text-[#355238]"
+                        : "border-[#cdbf9f] bg-[#f7f2e8] text-[#4a4435] hover:bg-[#efe5d1]"
+                    }`}
+                  >
+                    {motionEnabled ? "Tilt On" : "Enable Tilt"}
+                  </button>
+                )}
+
+                {feedback && (
+                  <div className="rounded-full bg-[#2f4733] px-3 py-1 text-[11px] font-medium text-white shadow">
+                    {feedback}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {isPhoneLandscape && motionError && (
+              <div className="rounded-lg border border-[#d7ccb3] bg-[#f7f2e8] px-2 py-1 text-[10px] text-[#5f573f]">
+                {motionError}
+              </div>
+            )}
+
+            <div className={isPhoneLandscape ? "grid min-h-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2" : "mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4"}>
+              <div className={isPhoneLandscape ? "relative min-w-0 rounded-[20px] border border-[#d5cab3] bg-[#f7f2e8] px-3 py-2 text-sm font-medium leading-snug text-[#2f3527] shadow-[0_10px_20px_rgba(15,23,42,0.08)]" : "relative min-w-0 rounded-[24px] border border-[#d5cab3] bg-[#f7f2e8] px-5 py-4 text-lg font-medium leading-snug text-[#2f3527] shadow-[0_12px_30px_rgba(15,23,42,0.08)] md:px-6 md:py-5 md:text-[22px]"}>
                 {current.bubble}
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute -right-[15px] top-1/2 h-0 w-0 -translate-y-1/2 border-y-[11px] border-l-[15px] border-y-transparent border-l-[#d5cab3]"
+                />
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute -right-[13px] top-1/2 h-0 w-0 -translate-y-1/2 border-y-[10px] border-l-[14px] border-y-transparent border-l-[#f7f2e8]"
+                />
               </div>
-              <div className="justify-self-end">
-                <Worm />
+              <div className={isPhoneLandscape ? "justify-self-end pr-1" : "justify-self-end"}>
+                <Worm isTalking={wormTalking} compact={isPhoneLandscape} />
               </div>
             </div>
 
-            <div className="mx-auto max-w-[1200px]">
-              <div className="space-y-4">
-                <JourneyTrack step={step} />
-                <JourneyCard step={step} />
-                <OverlayLegend step={step} />
+            <div className={isPhoneLandscape ? "min-h-0 overflow-hidden" : "mx-auto max-w-[1200px]"}>
+              <div className={isPhoneLandscape ? "space-y-2" : "space-y-4"}>
+                <JourneyTrack step={step} compact={isPhoneLandscape} />
+                <JourneyCard step={step} compact={isPhoneLandscape} />
+                <OverlayLegend step={step} compact={isPhoneLandscape} />
               </div>
             </div>
 
-            <div className="mt-5 flex items-center justify-between rounded-2xl border border-[#d5cab3] bg-[#f7f2e8]/85 px-3 py-3 backdrop-blur">
+            <div className={isPhoneLandscape ? "flex items-center justify-between rounded-2xl border border-[#d5cab3] bg-[#f7f2e8]/85 px-2 py-2 backdrop-blur" : "mt-5 flex items-center justify-between rounded-2xl border border-[#d5cab3] bg-[#f7f2e8]/85 px-3 py-3 backdrop-blur"}>
               <button onClick={back} className="rounded-xl px-3 py-2 text-[#504730] transition hover:bg-[#e2d8c2]">
                 &lt; Back
               </button>
