@@ -39,7 +39,7 @@ function ProgressDots({ active }) {
 
 function Worm({ isTalking, compact }) {
   const wrapperClass = compact
-    ? "relative h-24 w-36 shrink-0"
+    ? "relative h-20 w-28 shrink-0 -translate-y-2"
     : "relative h-40 w-56 shrink-0 translate-x-2 translate-y-1";
 
   return (
@@ -1354,7 +1354,7 @@ function ARLessonPrototype() {
       <style>{`@keyframes wormTalkBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}`}</style>
 
       <div className={isPhoneLandscape ? "h-full w-full" : "mx-auto h-[calc(100dvh-1.5rem)] w-full max-w-[1536px] overflow-hidden rounded-[32px] border border-[#c9bfa8] bg-[#f7f2e6] shadow-2xl md:h-[calc(100dvh-4rem)]"}>
-        <div className={isPhoneLandscape ? "grid h-full grid-rows-[minmax(170px,40vh)_1fr]" : "grid h-full grid-rows-[minmax(280px,45vh)_1fr] md:grid-rows-[minmax(360px,48vh)_1fr]"}>
+        <div className={isPhoneLandscape ? "grid h-full grid-rows-[minmax(165px,38vh)_1fr]" : "grid h-full grid-rows-[minmax(280px,45vh)_1fr] md:grid-rows-[minmax(360px,48vh)_1fr]"}>
           <div
             className="relative"
             onMouseMove={handleSceneMove}
@@ -1420,7 +1420,7 @@ function ARLessonPrototype() {
               </div>
             )}
 
-            <div className={isPhoneLandscape ? "grid min-h-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2" : "mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4"}>
+            <div className={isPhoneLandscape ? "grid min-h-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-2" : "mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4"}>
               <div className={isPhoneLandscape ? "relative min-w-0 rounded-[20px] border border-[#d5cab3] bg-[#f7f2e8] px-3 py-2 text-sm font-medium leading-snug text-[#2f3527] shadow-[0_10px_20px_rgba(15,23,42,0.08)]" : "relative min-w-0 rounded-[24px] border border-[#d5cab3] bg-[#f7f2e8] px-5 py-4 text-lg font-medium leading-snug text-[#2f3527] shadow-[0_12px_30px_rgba(15,23,42,0.08)] md:px-6 md:py-5 md:text-[22px]"}>
                 {current.bubble}
                 <span
@@ -1432,7 +1432,7 @@ function ARLessonPrototype() {
                   className="pointer-events-none absolute -right-[13px] top-1/2 h-0 w-0 -translate-y-1/2 border-y-[10px] border-l-[14px] border-y-transparent border-l-[#f7f2e8]"
                 />
               </div>
-              <div className={isPhoneLandscape ? "justify-self-end pr-1" : "justify-self-end"}>
+              <div className={isPhoneLandscape ? "justify-self-end pr-1 pt-0.5" : "justify-self-end"}>
                 <Worm isTalking={wormTalking} compact={isPhoneLandscape} />
               </div>
             </div>
@@ -1448,24 +1448,24 @@ function ARLessonPrototype() {
             )}
 
             {isPhoneLandscape ? (
-              <div className="relative z-50 mt-auto flex items-center justify-between px-1.5 py-1">
+              <div className="relative z-50 mt-1 flex items-center justify-between rounded-xl bg-[#ece5d5]/95 px-1 py-1.5" style={{ marginBottom: "max(0px, env(safe-area-inset-bottom))" }}>
                 <button
                   onClick={back}
                   disabled={step === 1}
                   className={`relative z-[60] pointer-events-auto rounded-xl px-3 py-2 transition ${
                     step === 1
-                      ? "cursor-not-allowed text-[#9f9783]"
+                      ? "cursor-not-allowed text-[#7f7764] opacity-70"
                       : "text-[#504730] hover:bg-[#e2d8c2]"
                   }`}
                 >
                   &lt; Back
                 </button>
 
-                <div className="relative z-[60] pointer-events-none scale-90">
+                <div className="relative z-[60] pointer-events-none shrink-0 scale-90">
                   <ProgressDots active={step} />
                 </div>
 
-                <button onClick={next} className="relative z-[60] pointer-events-auto rounded-xl bg-[#3f5b3b] px-5 py-2.5 text-white transition hover:scale-[1.01] hover:bg-[#32492f] active:scale-[0.99]">
+                <button onClick={next} className="relative z-[60] pointer-events-auto rounded-xl bg-[#3f5b3b] px-4 py-2.5 text-white transition hover:scale-[1.01] hover:bg-[#32492f] active:scale-[0.99]">
                   {step === 3 ? "Restart Journey >" : step === 1 ? "Start Journey >" : "Next Step >"}
                 </button>
               </div>
