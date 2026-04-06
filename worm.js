@@ -1442,7 +1442,7 @@ function ARLessonPrototype() {
       <style>{`@keyframes wormTalkBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}`}</style>
 
       <div className={isPhoneLandscape ? "h-full w-full" : "mx-auto h-[calc(100dvh-1.5rem)] w-full max-w-[1536px] overflow-hidden rounded-[32px] border border-[#c9bfa8] bg-[#f7f2e6] shadow-2xl md:h-[calc(100dvh-4rem)]"}>
-        <div className={isPhoneLandscape ? `grid h-full ${isUltraCompact ? "grid-rows-[minmax(145px,34vh)_1fr]" : "grid-rows-[minmax(165px,38vh)_1fr]"}` : "grid h-full grid-rows-[minmax(280px,45vh)_1fr] md:grid-rows-[minmax(360px,48vh)_1fr]"}>
+        <div className={isPhoneLandscape ? `grid h-full ${isUltraCompact ? "grid-rows-[minmax(185px,46vh)_1fr]" : "grid-rows-[minmax(210px,52vh)_1fr]"}` : "grid h-full grid-rows-[minmax(280px,45vh)_1fr] md:grid-rows-[minmax(360px,48vh)_1fr]"}>
           <div
             className="relative"
             onMouseMove={handleSceneMove}
@@ -1453,7 +1453,7 @@ function ARLessonPrototype() {
             <RootNetwork step={step} parallax={parallax} />
           </div>
 
-          <div className={isPhoneLandscape ? `grid h-full grid-rows-[auto_auto_1fr_auto] ${isUltraCompact ? "gap-1 px-2 pb-1.5 pt-1.5" : "gap-1.5 px-2.5 pb-2 pt-2"} overflow-hidden bg-[#ece5d5]` : "relative overflow-y-auto bg-[#ece5d5] px-4 pb-6 pt-5 md:px-8"}>
+          <div className={isPhoneLandscape ? `grid h-full content-start grid-rows-[auto_auto_auto] ${isUltraCompact ? "gap-1 px-2 pb-1.5 pt-1.5" : "gap-1.5 px-2.5 pb-2 pt-2"} overflow-hidden bg-[#ece5d5]` : "relative overflow-y-auto bg-[#ece5d5] px-4 pb-6 pt-5 md:px-8"}>
             {!isPhoneLandscape && (
               <a
                 href="./nhm-garden-map.html"
@@ -1508,8 +1508,8 @@ function ARLessonPrototype() {
               </div>
             )}
 
-            <div className={isPhoneLandscape ? `grid min-h-0 h-full grid-cols-[minmax(0,1fr)_auto] items-start ${isUltraCompact ? "gap-1.5" : "gap-2"}` : "mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4"}>
-              <div className={isPhoneLandscape ? `relative min-w-0 h-full rounded-[20px] border border-[#d5cab3] bg-[#f7f2e8] ${isUltraCompact ? "px-2.5 py-2 text-[15px]" : isStandaloneMode ? "px-3 py-2.5 text-[18px]" : "px-3 py-2.5 text-[17px]"} font-medium leading-snug text-[#2f3527] shadow-[0_10px_20px_rgba(15,23,42,0.08)]` : "relative min-w-0 rounded-[24px] border border-[#d5cab3] bg-[#f7f2e8] px-5 py-4 text-lg font-medium leading-snug text-[#2f3527] shadow-[0_12px_30px_rgba(15,23,42,0.08)] md:px-6 md:py-5 md:text-[22px]"}>
+            <div className={isPhoneLandscape ? `grid min-h-0 grid-cols-[minmax(0,1fr)_auto] items-start ${isUltraCompact ? "gap-1.5" : "gap-2"}` : "mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4"}>
+              <div className={isPhoneLandscape ? `relative min-w-0 rounded-[20px] border border-[#d5cab3] bg-[#f7f2e8] ${isUltraCompact ? "px-2.5 py-2 text-[15px]" : isStandaloneMode ? "px-3 py-2.5 text-[18px]" : "px-3 py-2.5 text-[17px]"} font-medium leading-snug text-[#2f3527] shadow-[0_10px_20px_rgba(15,23,42,0.08)]` : "relative min-w-0 rounded-[24px] border border-[#d5cab3] bg-[#f7f2e8] px-5 py-4 text-lg font-medium leading-snug text-[#2f3527] shadow-[0_12px_30px_rgba(15,23,42,0.08)] md:px-6 md:py-5 md:text-[22px]"}>
                 {current.bubble}
                 <span
                   aria-hidden
@@ -1537,7 +1537,7 @@ function ARLessonPrototype() {
 
             {isPhoneLandscape ? (
               <div
-                className={`relative z-50 grid grid-cols-[auto_1fr_auto] items-center ${isUltraCompact ? "gap-1.5 px-1.5 py-1" : "gap-1.5 px-1.5 py-1"} rounded-xl border border-[#d5cab3] bg-[#f7f2e8]/95`}
+                className={`relative z-50 grid grid-cols-[auto_1fr_auto] items-center ${isUltraCompact ? "gap-1.5 px-0.5 py-1" : "gap-1.5 px-0.5 py-1"}`}
                 style={{ marginBottom: "max(0px, env(safe-area-inset-bottom))" }}
               >
                 <button
