@@ -1173,12 +1173,23 @@ function ARLessonPrototype() {
   });
   const [motionEnabled, setMotionEnabled] = useState(false);
   const [motionError, setMotionError] = useState("");
+  const [tiltModeIndex, setTiltModeIndex] = useState(() => {
+    if (typeof window === "undefined") return 0;
+    const raw = Number(window.localStorage.getItem("tiltModeIndex") || "0");
+    return Number.isInteger(raw) ? Math.max(0, Math.min(3, raw)) : 0;
+  });
   const [isStandaloneMode, setIsStandaloneMode] = useState(false);
   const [viewportHeight, setViewportHeight] = useState(() =>
     typeof window === "undefined" ? 0 : window.innerHeight
   );
   const didMountRef = useRef(false);
   const isUltraCompact = isPhoneLandscape && viewportHeight > 0 && viewportHeight <= 430;
+  const tiltModes = [
+    { label: "Tilt: Normal", x: 1, y: 1 },
+    { label: "Tilt: Flip X", x: -1, y: 1 },
+    { label: "Tilt: Flip Y", x: 1, y: -1 },
+    { label: "Tilt: Flip XY", x: -1, y: -1 },
+  ];
 
   useEffect(() => {
     if (typeof window === "undefined" || !window.matchMedia) return;
@@ -1206,6 +1217,11 @@ function ARLessonPrototype() {
     if (typeof window === "undefined") return;
     setMotionAvailable("DeviceOrientationEvent" in window);
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem("tiltModeIndex", String(tiltModeIndex));
+  }, [tiltModeIndex]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -1291,14 +1307,16 @@ function ARLessonPrototype() {
       const beta = typeof event.beta === "number" ? event.beta : 0;
 
       const angle = getOrientationAngle();
-      const isLandscape = Math.abs(angle) === 90;
+      const viewportLandscape =
+        typeof window !== "undefined" && window.innerWidth > window.innerHeight;
+      const isLandscape = Math.abs(angle) === 90 || viewportLandscape;
 
       let rawX = gamma;
       let rawY = beta - 25;
 
       // In landscape on phones/tablets, beta tracks left/right and gamma tracks up/down.
       if (isLandscape) {
-        if (angle === 90 || angle === -270) {
+        if (angle === 90 || angle === -270 || angle === 0) {
           rawX = -beta;
           rawY = gamma;
         } else {
@@ -1306,6 +1324,10 @@ function ARLessonPrototype() {
           rawY = -gamma;
         }
       }
+
+      const selectedTilt = tiltModes[tiltModeIndex] || tiltModes[0];
+      rawX *= selectedTilt.x;
+      rawY *= selectedTilt.y;
 
       const deadzone = 1.2;
       if (Math.abs(rawX) < deadzone) rawX = 0;
@@ -1322,7 +1344,7 @@ function ARLessonPrototype() {
 
     window.addEventListener("deviceorientation", onOrientation, true);
     return () => window.removeEventListener("deviceorientation", onOrientation, true);
-  }, [motionEnabled]);
+  }, [motionEnabled, tiltModeIndex]);
 
   const enableMotionParallax = async () => {
     if (typeof window === "undefined") return;
@@ -1351,6 +1373,14 @@ function ARLessonPrototype() {
       console.error("Device orientation permission failed", err);
       setMotionError("Could not enable tilt controls.");
     }
+  };
+
+  const cycleTiltMode = () => {
+    setTiltModeIndex((idx) => {
+      const next = (idx + 1) % tiltModes.length;
+      setFeedback(tiltModes[next].label);
+      return next;
+    });
   };
 
   const next = () => {
@@ -1456,17 +1486,29 @@ function ARLessonPrototype() {
                 </a>
 
                 {motionAvailable && !prefersReducedMotion && (
-                  <button
-                    type="button"
-                    onClick={enableMotionParallax}
-                    className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold transition ${
-                      motionEnabled
-                        ? "border-[#8fa983] bg-[#dce8d6] text-[#355238]"
-                        : "border-[#cdbf9f] bg-[#f7f2e8] text-[#4a4435] hover:bg-[#efe5d1]"
-                    }`}
-                  >
-                    {motionEnabled ? "Tilt On" : "Enable Tilt"}
-                  </button>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={enableMotionParallax}
+                      className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold transition ${
+                        motionEnabled
+                          ? "border-[#8fa983] bg-[#dce8d6] text-[#355238]"
+                          : "border-[#cdbf9f] bg-[#f7f2e8] text-[#4a4435] hover:bg-[#efe5d1]"
+                      }`}
+                    >
+                      {motionEnabled ? "Tilt On" : "Enable Tilt"}
+                    </button>
+
+                    {motionEnabled && (
+                      <button
+                        type="button"
+                        onClick={cycleTiltMode}
+                        className="rounded-full border border-[#cdbf9f] bg-[#f7f2e8] px-2 py-0.5 text-[10px] font-semibold text-[#4a4435] transition hover:bg-[#efe5d1]"
+                      >
+                        {tiltModes[tiltModeIndex].label}
+                      </button>
+                    )}
+                  </div>
                 )}
 
                 <div className="min-h-[24px]">
